@@ -8,6 +8,6 @@ find_package (GLUT REQUIRED)
 
 include_directories(${OPENGL_INCLUDE_DIR}  ${GLUT_INCLUDE_DIRS})
 
-add_executable(asteroid main.cpp)
+add_executable(asteroid main.cpp Ship.cpp Ship.h)
 
 target_link_libraries (asteroid ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})

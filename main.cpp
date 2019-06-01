@@ -4,6 +4,9 @@
 
 #include <stdlib.h> // for exit
 #include <unistd.h> // for usleep
+#include <iostream>
+#include <cmath>
+#include "Ship.h"
 
 int window;
 
@@ -11,9 +14,14 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
+Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{5.0, 5.0, 5.0});
+
+std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(30);
+
 void timer(int val) {
     glutPostRedisplay();
     glutTimerFunc(1000 / 60.0, &timer, 1);
+    player.update(1 / 60.0);
 }
 
 void resize(int width, int height) {
@@ -23,16 +31,89 @@ void resize(int width, int height) {
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, (float) width / (float) height, 0.1f, 100.0f);
+    gluPerspective(70.0f, (float) width / (float) height, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
 }
 
-void keyPressed(unsigned char key, int x, int y) {
-    usleep(100);
+float deg2rad(float degrees) {
+    return degrees * (3.141592653589793238463 / 180.0);
+}
+
+void keyReleased(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
             glutDestroyWindow(window);
             exit(0);
+
+        case '2':
+            player.getLinearThrust()[2] = 0;
+            break;
+
+        case 'x':
+            player.getLinearThrust()[2] = 0;
+            break;
+
+        case 'y':
+            player.getAngularThrust()[2] = 0;
+            break;
+
+        case 'c':
+            player.getAngularThrust()[2] = 0;
+            break;
+
+        case 'w':
+            player.getAngularThrust()[0] = 0;
+            break;
+
+        case 's':
+            player.getAngularThrust()[0] = 0;
+            break;
+
+        case 'a':
+            player.getAngularThrust()[1] = 0;
+            break;
+
+        case 'd':
+            player.getAngularThrust()[1] = 0;
+            break;
+    }
+}
+
+void keyPressed(unsigned char key, int x, int y) {
+    if (key == '2') {
+
+    }
+    switch (key) {
+        case '2':
+            player.getLinearThrust()[2] = -1;
+            break;
+
+        case 'x':
+            player.getLinearThrust()[2] = 1;
+            break;
+
+        case 'y':
+            player.getAngularThrust()[2] = 1;
+            break;
+
+        case 'c':
+            player.getAngularThrust()[2] = -1;
+            break;
+
+        case 'w':
+            player.getAngularThrust()[0] = 1;
+            break;
+
+        case 's':
+            player.getAngularThrust()[0] = -1;
+            break;
+
+        case 'a':
+            player.getAngularThrust()[1] = 1;
+            break;
+
+        case 'd':
+            player.getAngularThrust()[1] = -1;
             break;
     }
 }
@@ -57,7 +138,25 @@ void display() {
     hour = hour - ((int) (hour / 24)) * 24;
     day = day - ((int) (day / 365)) * 365;
 
-    glTranslatef(0.0, 0.0, -8.0);
+    // Translate according to player variables
+    std::vector<float> playerAngle = player.getAngle();
+    glRotatef(-playerAngle[0], 1.0, 0.0, 0.0);
+    glRotatef(-playerAngle[1], 0.0, 1.0, 0.0);
+    glRotatef(-playerAngle[2], 0.0, 0.0, 1.0);
+
+    std::vector<float> playerPos = player.getPosition();
+    glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);
+
+    // Stars
+    glDisable(GL_LIGHTING);
+    glColor3f(1.0, 1.0, 1.0);
+    for (int i = 0; i < 30; i++) {
+        glPushMatrix();
+        glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
+        glutSolidSphere(0.1, 15, 15);
+        glPopMatrix();
+    }
+    glEnable(GL_LIGHTING);
 
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
 
@@ -117,7 +216,18 @@ void init(int width, int height) {
 }
 
 
+float randZeroToOne() {
+    return rand() / (RAND_MAX + 1.);
+}
+
 int main(int argc, char **argv) {
+    for (int i = 0; i < 30; i++) {
+        stars[i] = std::vector<float>{(randZeroToOne() - 0.5f) * 100.0f,
+                                      (randZeroToOne() - 0.5f) * 100.0f,
+                                      (randZeroToOne() - 0.5f) * 100.0f};
+    }
+
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
     glutInitWindowSize(1920, 1080);
@@ -129,6 +239,7 @@ int main(int argc, char **argv) {
 
     glutReshapeFunc(&resize);
     glutKeyboardFunc(&keyPressed);
+    glutKeyboardUpFunc(&keyReleased);
     glutSpecialFunc(&specialKeyPressed);
     init(640, 480);
     glutMainLoop();
