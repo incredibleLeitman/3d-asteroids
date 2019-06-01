@@ -14,7 +14,7 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{5.0, 5.0, 5.0});
+Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{2.0, 2.0, 2.0});
 
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(30);
 
@@ -49,7 +49,7 @@ void keyReleased(unsigned char key, int x, int y) {
             player.getLinearThrust()[2] = 0;
             break;
 
-            // Sideways
+        // Sideways
         case 'j':
             player.getLinearThrust()[0] = 0;
             break;
@@ -57,7 +57,7 @@ void keyReleased(unsigned char key, int x, int y) {
             player.getLinearThrust()[0] = 0;
             break;
 
-            // Up
+        // Up
         case 'u':
             player.getLinearThrust()[1] = 0;
             break;
@@ -65,7 +65,7 @@ void keyReleased(unsigned char key, int x, int y) {
             player.getLinearThrust()[1] = 0;
             break;
 
-            // Yaw
+        // Yaw
         case 'q':
             player.getAngularThrust()[1] = 0;
             break;
@@ -73,7 +73,7 @@ void keyReleased(unsigned char key, int x, int y) {
             player.getAngularThrust()[1] = 0;
             break;
 
-            // Roll
+        // Roll
         case 'a':
             player.getAngularThrust()[2] = 0;
             break;
@@ -81,7 +81,7 @@ void keyReleased(unsigned char key, int x, int y) {
             player.getAngularThrust()[2] = 0;
             break;
 
-            // Pitch
+        // Pitch
         case 'w':
             player.getAngularThrust()[0] = 0;
             break;
@@ -109,7 +109,7 @@ void keyPressed(unsigned char key, int x, int y) {
             player.getLinearThrust()[2] = 1;
             break;
 
-        // Sideways
+            // Sideways
         case 'j':
             player.getLinearThrust()[0] = -1;
             break;
@@ -117,7 +117,7 @@ void keyPressed(unsigned char key, int x, int y) {
             player.getLinearThrust()[0] = 1;
             break;
 
-        // Up
+            // Up
         case 'u':
             player.getLinearThrust()[1] = 1;
             break;
@@ -125,7 +125,7 @@ void keyPressed(unsigned char key, int x, int y) {
             player.getLinearThrust()[1] = -1;
             break;
 
-        // Yaw
+            // Yaw
         case 'q':
             player.getAngularThrust()[1] = 1;
             break;
@@ -133,7 +133,7 @@ void keyPressed(unsigned char key, int x, int y) {
             player.getAngularThrust()[1] = -1;
             break;
 
-        // Roll
+            // Roll
         case 'a':
             player.getAngularThrust()[2] = 1;
             break;
@@ -141,13 +141,24 @@ void keyPressed(unsigned char key, int x, int y) {
             player.getAngularThrust()[2] = -1;
             break;
 
-        // Pitch
+            // Pitch
         case 'w':
             player.getAngularThrust()[0] = 1;
             break;
         case 's':
             player.getAngularThrust()[0] = -1;
             break;
+
+            // Emergency
+        case ' ':
+            player.getAngularVelocity()[0] = 0;
+            player.getAngularVelocity()[1] = 0;
+            player.getAngularVelocity()[2] = 0;
+
+            player.velocity[0] = 0;
+            player.velocity[1] = 0;
+            player.velocity[2] = 0;
+
     }
 }
 
