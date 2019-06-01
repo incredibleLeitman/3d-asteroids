@@ -45,9 +45,9 @@ void Ship::update(float delta) {
     }
 
     // Rotate our basis depending on how much we're rotating this frame
-    Eigen::AngleAxisd rollAngle(getAngularVelocity()[2] * (M_PI / 180) * delta, Eigen::Vector3d::UnitZ());
-    Eigen::AngleAxisd yawAngle(getAngularVelocity()[1] * (M_PI / 180) * delta, Eigen::Vector3d::UnitY());
-    Eigen::AngleAxisd pitchAngle(getAngularVelocity()[0] * (M_PI / 180) * delta, Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd rollAngle(getAngularVelocity()[2] * (M_PI / 180) * delta, basis.col(2));
+    Eigen::AngleAxisd yawAngle(getAngularVelocity()[1] * (M_PI / 180) * delta, basis.col(1));
+    Eigen::AngleAxisd pitchAngle(getAngularVelocity()[0] * (M_PI / 180) * delta, basis.col(0));
 
     Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
 
