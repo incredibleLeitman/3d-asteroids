@@ -41,79 +41,112 @@ float deg2rad(float degrees) {
 
 void keyReleased(unsigned char key, int x, int y) {
     switch (key) {
-        case 27:
-            glutDestroyWindow(window);
-            exit(0);
-
-        case '2':
+        // Forward
+        case 'i':
+            player.getLinearThrust()[2] = 0;
+            break;
+        case 'k':
             player.getLinearThrust()[2] = 0;
             break;
 
-        case 'x':
-            player.getLinearThrust()[2] = 0;
+            // Sideways
+        case 'j':
+            player.getLinearThrust()[0] = 0;
+            break;
+        case 'l':
+            player.getLinearThrust()[0] = 0;
             break;
 
-        case 'y':
+            // Up
+        case 'u':
+            player.getLinearThrust()[1] = 0;
+            break;
+        case 'o':
+            player.getLinearThrust()[1] = 0;
+            break;
+
+            // Yaw
+        case 'q':
+            player.getAngularThrust()[1] = 0;
+            break;
+        case 'e':
+            player.getAngularThrust()[1] = 0;
+            break;
+
+            // Roll
+        case 'a':
+            player.getAngularThrust()[2] = 0;
+            break;
+        case 'd':
             player.getAngularThrust()[2] = 0;
             break;
 
-        case 'c':
-            player.getAngularThrust()[2] = 0;
-            break;
-
+            // Pitch
         case 'w':
             player.getAngularThrust()[0] = 0;
             break;
-
         case 's':
             player.getAngularThrust()[0] = 0;
-            break;
-
-        case 'a':
-            player.getAngularThrust()[1] = 0;
-            break;
-
-        case 'd':
-            player.getAngularThrust()[1] = 0;
             break;
     }
 }
 
 void keyPressed(unsigned char key, int x, int y) {
-    if (key == '2') {
+    // W and S is pitch
+    // A and D is roll
+    // Q and E is yaw
 
-    }
+    // I and K are forward
+    // J and L are sideways
+    // U and O are up
+
     switch (key) {
-        case '2':
+        // Forward
+        case 'i':
             player.getLinearThrust()[2] = -1;
             break;
-
-        case 'x':
+        case 'k':
             player.getLinearThrust()[2] = 1;
             break;
 
-        case 'y':
-            player.getAngularThrust()[2] = 1;
+        // Sideways
+        case 'j':
+            player.getLinearThrust()[0] = -1;
+            break;
+        case 'l':
+            player.getLinearThrust()[0] = 1;
             break;
 
-        case 'c':
+        // Up
+        case 'u':
+            player.getLinearThrust()[1] = 1;
+            break;
+        case 'o':
+            player.getLinearThrust()[1] = -1;
+            break;
+
+        // Yaw
+        case 'q':
+            player.getAngularThrust()[1] = 1;
+            break;
+        case 'e':
+            player.getAngularThrust()[1] = -1;
+            break;
+
+        // Roll
+        case 'a':
+            player.getAngularThrust()[2] = 1;
+            break;
+        case 'd':
             player.getAngularThrust()[2] = -1;
             break;
 
+        // Pitch
         case 'w':
             player.getAngularThrust()[0] = 1;
             break;
-
         case 's':
             player.getAngularThrust()[0] = -1;
-            break;
-
-        case 'a':
-            player.getAngularThrust()[1] = 1;
-            break;
-
-        case 'd':
-            player.getAngularThrust()[1] = -1;
             break;
     }
 }

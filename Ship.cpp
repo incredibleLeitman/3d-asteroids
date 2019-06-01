@@ -37,7 +37,6 @@ void Ship::update(float delta) {
     Eigen::Vector3d newVel;
     Eigen::Vector3d newAng;
 
-
     // Update velocities
     for (int dim = 0; dim < 3; dim++) {
         getAngularVelocity()[dim] += getAngularAccel()[dim] * getAngularThrust()[dim] * delta;
