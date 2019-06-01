@@ -139,10 +139,25 @@ void display() {
     day = day - ((int) (day / 365)) * 365;
 
     // Translate according to player variables
-    std::vector<float> playerAngle = player.getAngle();
-    glRotatef(-playerAngle[0], 1.0, 0.0, 0.0);
-    glRotatef(-playerAngle[1], 0.0, 1.0, 0.0);
-    glRotatef(-playerAngle[2], 0.0, 0.0, 1.0);
+    float matrix[16];
+
+    int accessorAdd = 0;
+    for (int i = 0; i < 12; i++) {
+        if ((i + 1) % 4 == 0) {
+            matrix[i] = 0;
+            accessorAdd++;
+        } else {
+            matrix[i] = player.basis.inverse()(i - accessorAdd);
+        }
+
+        std::cout << matrix[i] << std::endl;
+    }
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    matrix[15] = 1;
+
+    glMultMatrixf(matrix);
 
     std::vector<float> playerPos = player.getPosition();
     glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);

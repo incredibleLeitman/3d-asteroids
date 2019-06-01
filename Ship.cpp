@@ -34,18 +34,41 @@ const std::vector<float> &Ship::getAngle() const {
 }
 
 void Ship::update(float delta) {
-    // Forward movement fixed by angles
-    getLinearVelocity()[0] += getLinearAccel()[0] * getLinearThrust()[2] * delta * sin(getAngle()[1] * (M_PI / 180)) * cos(getAngle()[0] * (M_PI / 180));
-    getLinearVelocity()[1] += getLinearAccel()[1] * getLinearThrust()[2] * delta * -sin(getAngle()[0] * (M_PI / 180));
-    getLinearVelocity()[2] += getLinearAccel()[2] * getLinearThrust()[2] * delta * cos(getAngle()[1] * (M_PI / 180)) * cos(getAngle()[0] * (M_PI / 180));
+    Eigen::Vector3d newVel;
+    Eigen::Vector3d newAng;
 
+
+    // Update velocities
     for (int dim = 0; dim < 3; dim++) {
-        // TODO: This doesn't work: Once the X rotation has been changed, the Z rotation isn't as expected
         getAngularVelocity()[dim] += getAngularAccel()[dim] * getAngularThrust()[dim] * delta;
-
-        position[dim] += getLinearVelocity()[dim] * delta;
-        angle[dim] += getAngularVelocity()[dim] * delta;
+        newVel[dim] = getLinearAccel()[dim] * getLinearThrust()[dim] * delta;
     }
+
+    // Rotate our basis depending on how much we're rotating this frame
+    Eigen::AngleAxisd rollAngle(getAngularVelocity()[2] * (M_PI / 180) * delta, Eigen::Vector3d::UnitZ());
+    Eigen::AngleAxisd yawAngle(getAngularVelocity()[1] * (M_PI / 180) * delta, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd pitchAngle(getAngularVelocity()[0] * (M_PI / 180) * delta, Eigen::Vector3d::UnitX());
+
+    Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
+
+    basis = q.matrix() * basis;
+
+    std::cout << basis << std::endl << std::endl;
+
+    // Apply rotation to our angle Vector (Euler angles)
+    Eigen::Vector3d eulerAngles = basis.eulerAngles(0, 1, 2);
+    angle[0] = eulerAngles[0];
+    angle[1] = eulerAngles[1];
+    angle[2] = eulerAngles[2];
+
+    // Apply linear velocity relative to our angle
+    Eigen::Vector3d pos = Eigen::Vector3d(getPosition()[0], getPosition()[1], getPosition()[2]);
+    velocity += basis * newVel * delta;
+    pos += velocity;
+
+    position[0] = pos[0];
+    position[1] = pos[1];
+    position[2] = pos[2];
 }
 
 Ship::Ship(std::vector<float> angularAccel, std::vector<float> linearAccel) : angularAccel(std::move(angularAccel)),
