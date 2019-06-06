@@ -14,7 +14,7 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{5.0, 5.0, 5.0});
+Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{2.0, 2.0, 2.0});
 
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(30);
 
@@ -41,80 +41,124 @@ float deg2rad(float degrees) {
 
 void keyReleased(unsigned char key, int x, int y) {
     switch (key) {
-        case 27:
-            glutDestroyWindow(window);
-            exit(0);
-
-        case '2':
+        // Forward
+        case 'i':
+            player.getLinearThrust()[2] = 0;
+            break;
+        case 'k':
             player.getLinearThrust()[2] = 0;
             break;
 
-        case 'x':
-            player.getLinearThrust()[2] = 0;
+        // Sideways
+        case 'j':
+            player.getLinearThrust()[0] = 0;
+            break;
+        case 'l':
+            player.getLinearThrust()[0] = 0;
             break;
 
-        case 'y':
+        // Up
+        case 'u':
+            player.getLinearThrust()[1] = 0;
+            break;
+        case 'o':
+            player.getLinearThrust()[1] = 0;
+            break;
+
+        // Yaw
+        case 'q':
+            player.getAngularThrust()[1] = 0;
+            break;
+        case 'e':
+            player.getAngularThrust()[1] = 0;
+            break;
+
+        // Roll
+        case 'a':
+            player.getAngularThrust()[2] = 0;
+            break;
+        case 'd':
             player.getAngularThrust()[2] = 0;
             break;
 
-        case 'c':
-            player.getAngularThrust()[2] = 0;
-            break;
-
+        // Pitch
         case 'w':
             player.getAngularThrust()[0] = 0;
             break;
-
         case 's':
             player.getAngularThrust()[0] = 0;
-            break;
-
-        case 'a':
-            player.getAngularThrust()[1] = 0;
-            break;
-
-        case 'd':
-            player.getAngularThrust()[1] = 0;
             break;
     }
 }
 
 void keyPressed(unsigned char key, int x, int y) {
-    if (key == '2') {
+    // W and S is pitch
+    // A and D is roll
+    // Q and E is yaw
 
-    }
+    // I and K are forward
+    // J and L are sideways
+    // U and O are up
+
     switch (key) {
-        case '2':
+        // Forward
+        case 'i':
             player.getLinearThrust()[2] = -1;
             break;
-
-        case 'x':
+        case 'k':
             player.getLinearThrust()[2] = 1;
             break;
 
-        case 'y':
-            player.getAngularThrust()[2] = 1;
+            // Sideways
+        case 'j':
+            player.getLinearThrust()[0] = -1;
+            break;
+        case 'l':
+            player.getLinearThrust()[0] = 1;
             break;
 
-        case 'c':
+            // Up
+        case 'u':
+            player.getLinearThrust()[1] = 1;
+            break;
+        case 'o':
+            player.getLinearThrust()[1] = -1;
+            break;
+
+            // Yaw
+        case 'q':
+            player.getAngularThrust()[1] = 1;
+            break;
+        case 'e':
+            player.getAngularThrust()[1] = -1;
+            break;
+
+            // Roll
+        case 'a':
+            player.getAngularThrust()[2] = 1;
+            break;
+        case 'd':
             player.getAngularThrust()[2] = -1;
             break;
 
+            // Pitch
         case 'w':
             player.getAngularThrust()[0] = 1;
             break;
-
         case 's':
             player.getAngularThrust()[0] = -1;
             break;
 
-        case 'a':
-            player.getAngularThrust()[1] = 1;
-            break;
+            // Emergency
+        case ' ':
+            player.getAngularVelocity()[0] = 0;
+            player.getAngularVelocity()[1] = 0;
+            player.getAngularVelocity()[2] = 0;
 
-        case 'd':
-            player.getAngularThrust()[1] = -1;
-            break;
+            player.velocity[0] = 0;
+            player.velocity[1] = 0;
+            player.velocity[2] = 0;
+
     }
 }
 
@@ -139,10 +183,25 @@ void display() {
     day = day - ((int) (day / 365)) * 365;
 
     // Translate according to player variables
-    std::vector<float> playerAngle = player.getAngle();
-    glRotatef(-playerAngle[0], 1.0, 0.0, 0.0);
-    glRotatef(-playerAngle[1], 0.0, 1.0, 0.0);
-    glRotatef(-playerAngle[2], 0.0, 0.0, 1.0);
+    float matrix[16];
+
+    int accessorAdd = 0;
+    for (int i = 0; i < 12; i++) {
+        if ((i + 1) % 4 == 0) {
+            matrix[i] = 0;
+            accessorAdd++;
+        } else {
+            matrix[i] = player.basis.inverse()(i - accessorAdd);
+        }
+
+        std::cout << matrix[i] << std::endl;
+    }
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    matrix[15] = 1;
+
+    glMultMatrixf(matrix);
 
     std::vector<float> playerPos = player.getPosition();
     glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);

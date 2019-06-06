@@ -6,6 +6,7 @@
 #define ASTEROID_SHIP_H
 
 #include <vector>
+#include "Eigen/Geometry"
 
 
 class Ship {
@@ -31,7 +32,7 @@ public:
 
     std::vector<float> &getLinearThrust();
 
-private:
+public:
     std::vector<float> angularVelocity = std::vector<float>(3);
     std::vector<float> angularAccel = std::vector<float>(3);
     std::vector<float> linearVelocity = std::vector<float>(3);
@@ -40,6 +41,9 @@ private:
     std::vector<float> angle = std::vector<float>(3);
     std::vector<float> angularThrust = std::vector<float>(3);
     std::vector<float> linearThrust = std::vector<float>(3);
+
+    Eigen::Matrix3d basis = Eigen::Matrix3d::Identity();
+    Eigen::Vector3d velocity;
 };
 
 
