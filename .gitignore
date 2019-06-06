@@ -99,3 +99,11 @@ fabric.properties
 
 ## Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+## Visual Studio
+3d-asteroids.sln
+3d-asteroids.vcxproj
+3d-asteroids.vcxproj.filters
+3d-asteroids.vcxproj.user
+3d-asteroids/Debug/
+3d-asteroids/.vs/
