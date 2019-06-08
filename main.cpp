@@ -6,7 +6,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "Defines.h"
+#include "RandomRange.h"
 #include "Ship.h"
+#include "TextureManager.h"
 
 int window;
 
@@ -14,9 +17,11 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{2.0, 2.0, 2.0});
+GLuint ASTEROID_IMG_ID;
 
-std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(30);
+const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
+std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
+Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{2.0, 2.0, 2.0});
 
 void timer(int val) {
     glutPostRedisplay();
@@ -35,63 +40,14 @@ void resize(int width, int height) {
     glMatrixMode(GL_MODELVIEW);
 }
 
+/* LEM: TODO: ask @KB: not needed, remove?
 float deg2rad(float degrees) {
     return degrees * (3.141592653589793238463 / 180.0);
-}
-
-void keyReleased(unsigned char key, int x, int y) {
-    switch (key) {
-        // Forward
-        case 'i':
-            player.getLinearThrust()[2] = 0;
-            break;
-        case 'k':
-            player.getLinearThrust()[2] = 0;
-            break;
-
-        // Sideways
-        case 'j':
-            player.getLinearThrust()[0] = 0;
-            break;
-        case 'l':
-            player.getLinearThrust()[0] = 0;
-            break;
-
-        // Up
-        case 'u':
-            player.getLinearThrust()[1] = 0;
-            break;
-        case 'o':
-            player.getLinearThrust()[1] = 0;
-            break;
-
-        // Yaw
-        case 'q':
-            player.getAngularThrust()[1] = 0;
-            break;
-        case 'e':
-            player.getAngularThrust()[1] = 0;
-            break;
-
-        // Roll
-        case 'a':
-            player.getAngularThrust()[2] = 0;
-            break;
-        case 'd':
-            player.getAngularThrust()[2] = 0;
-            break;
-
-        // Pitch
-        case 'w':
-            player.getAngularThrust()[0] = 0;
-            break;
-        case 's':
-            player.getAngularThrust()[0] = 0;
-            break;
-    }
-}
+}*/
 
 void keyPressed(unsigned char key, int x, int y) {
+	// Esc is exit
+
     // W and S is pitch
     // A and D is roll
     // Q and E is yaw
@@ -101,6 +57,11 @@ void keyPressed(unsigned char key, int x, int y) {
     // U and O are up
 
     switch (key) {
+		// exit
+		case 27:
+			glutDestroyWindow(window);
+			exit(0);
+			break;
         // Forward
         case 'i':
             player.getLinearThrust()[2] = -1;
@@ -162,6 +123,59 @@ void keyPressed(unsigned char key, int x, int y) {
     }
 }
 
+void keyReleased(unsigned char key, int x, int y) {
+	// LEM: TODO: ask @KB: fallthrough ugly?
+	switch (key) {
+		// Forward
+	case 'i':
+		//player.getLinearThrust()[2] = 0;
+		//break;
+	case 'k':
+		player.getLinearThrust()[2] = 0;
+		break;
+
+		// Sideways
+	case 'j':
+		//player.getLinearThrust()[0] = 0;
+		//break;
+	case 'l':
+		player.getLinearThrust()[0] = 0;
+		break;
+
+		// Up
+	case 'u':
+		//player.getLinearThrust()[1] = 0;
+		//break;
+	case 'o':
+		player.getLinearThrust()[1] = 0;
+		break;
+
+		// Yaw
+	case 'q':
+		//player.getAngularThrust()[1] = 0;
+		//break;
+	case 'e':
+		player.getAngularThrust()[1] = 0;
+		break;
+
+		// Roll
+	case 'a':
+		//player.getAngularThrust()[2] = 0;
+		//break;
+	case 'd':
+		player.getAngularThrust()[2] = 0;
+		break;
+
+		// Pitch
+	case 'w':
+		//player.getAngularThrust()[0] = 0;
+		//break;
+	case 's':
+		player.getAngularThrust()[0] = 0;
+		break;
+	}
+}
+
 static void specialKeyPressed(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
@@ -173,6 +187,134 @@ static void specialKeyPressed(int key, int x, int y) {
     }
 }
 
+void mouseButton(int button, int state, int x, int y)
+{
+	// mouse Example code
+	/*switch (button) {
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_DOWN) {
+			moving = 1;
+			begin_x = x;
+			begin_y = y;
+
+		}
+		else if (state == GLUT_UP) {
+			moving = 0;
+		}
+		break;
+
+	default:
+		break;
+	}*/
+}
+
+void mouseMotion(int x, int y) {
+	// mouse Example code
+	/*if (moving) {
+		angle_y = angle_y + (x - begin_x);
+		angle_x = angle_x + (y - begin_y);
+		if (angle_x > 360.0) angle_x -= 360.0;
+		else if (angle_x < -360.0) angle_x += 360.0;
+		if (angle_y > 360.0) angle_y -= 360.0;
+		else if (angle_y < -360.0) angle_y += 360.0;
+
+		begin_x = x;
+		begin_y = y;
+	}*/
+}
+
+void applyPlayerMovement()
+{
+	// Translate according to player variables
+	float matrix[16];
+
+	int accessorAdd = 0;
+	for (int i = 0; i < 12; i++) {
+		if ((i + 1) % 4 == 0) {
+			matrix[i] = 0;
+			accessorAdd++;
+		}
+		else {
+			matrix[i] = player.basis.inverse()(i - accessorAdd);
+		}
+		if (debug_output) std::cout << matrix[i] << std::endl;
+	}
+	matrix[12] = 0;
+	matrix[13] = 0;
+	matrix[14] = 0;
+	matrix[15] = 1;
+
+	glMultMatrixf(matrix);
+
+	std::vector<double> playerPos = player.getPosition();
+	glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);
+}
+
+void displayTest()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+	applyPlayerMovement();
+
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glBindTexture(GL_TEXTURE_2D, textures[0]);
+	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
+		std::cout << "binding texture failed..." << std::endl;
+
+	glBegin(GL_QUADS);
+	// front face
+	//GLfloat fac = 2.0f;
+	//GLfloat fac = .5f;
+	GLfloat fac = 1.0f;
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glTexCoord2f(fac, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(fac, fac); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, fac); glVertex3f(-1.0f, 1.0f, 1.0f);
+	// back face
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	// top face
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+
+	glEnd();
+	/*glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_TEXTURE_2D);*/
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//glBindTexture(GL_TEXTURE_2D, textures[1]);
+	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
+		std::cout << "binding texture failed..." << std::endl;
+	glBegin(GL_QUADS);
+
+	// bottom face
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	// right face
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	// left face
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glutSwapBuffers();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -182,34 +324,12 @@ void display() {
     hour = hour - ((int) (hour / 24)) * 24;
     day = day - ((int) (day / 365)) * 365;
 
-    // Translate according to player variables
-    float matrix[16];
-
-    int accessorAdd = 0;
-    for (int i = 0; i < 12; i++) {
-        if ((i + 1) % 4 == 0) {
-            matrix[i] = 0;
-            accessorAdd++;
-        } else {
-            matrix[i] = player.basis.inverse()(i - accessorAdd);
-        }
-
-        std::cout << matrix[i] << std::endl;
-    }
-    matrix[12] = 0;
-    matrix[13] = 0;
-    matrix[14] = 0;
-    matrix[15] = 1;
-
-    glMultMatrixf(matrix);
-
-    std::vector<float> playerPos = player.getPosition();
-    glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);
+	applyPlayerMovement();
 
     // Stars
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0, 1.0);
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < count_stars; i++) {
         glPushMatrix();
         glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
         glutSolidSphere(0.1, 15, 15);
@@ -221,6 +341,16 @@ void display() {
 
     // ecliptic
     glRotatef(15.0, 1.0, 0.0, 0.0);
+
+	// set textures
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
+		std::cout << "binding texture failed..." << std::endl;
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
 
     // sun
     glDisable(GL_LIGHTING);
@@ -266,6 +396,9 @@ void init(int width, int height) {
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
+	if (TextureManager::Inst()->LoadTexture("..\\resources\\asteroid.tga", ASTEROID_IMG_ID) == false)
+		std::cout << "loading texture failed..." << std::endl;
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
     glDepthFunc(GL_LESS);
@@ -274,16 +407,11 @@ void init(int width, int height) {
     resize(width, height);
 }
 
-
-float randZeroToOne() {
-    return rand() / (RAND_MAX + 1.);
-}
-
 int main(int argc, char **argv) {
-    for (int i = 0; i < 30; i++) {
-        stars[i] = std::vector<float>{(randZeroToOne() - 0.5f) * 100.0f,
-                                      (randZeroToOne() - 0.5f) * 100.0f,
-                                      (randZeroToOne() - 0.5f) * 100.0f};
+    for (int i = 0; i < count_stars; i++) {
+        stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
+                                      (Random::ZeroToOne() - 0.5f) * 100.0f,
+                                      (Random::ZeroToOne() - 0.5f) * 100.0f};
     }
 
 
@@ -291,8 +419,9 @@ int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
     glutInitWindowSize(1920, 1080);
     glutInitWindowPosition(0, 0);
-    window = glutCreateWindow("foo");
-    glutDisplayFunc(&display);
+    window = glutCreateWindow("3D Asteroids");
+    //glutDisplayFunc(&display);
+	glutDisplayFunc(&displayTest);
 
     glutTimerFunc(1000 / 60.0, &timer, 1);
 
@@ -300,7 +429,11 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(&keyPressed);
     glutKeyboardUpFunc(&keyReleased);
     glutSpecialFunc(&specialKeyPressed);
+	glutMouseFunc(&mouseButton);
+	glutMotionFunc(&mouseMotion);
+
     init(640, 480);
+	glutFullScreen();
     glutMainLoop();
     return 0;
 }

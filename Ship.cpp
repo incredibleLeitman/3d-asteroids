@@ -1,15 +1,13 @@
-#define _USE_MATH_DEFINES
-#include <cmath>
-
-#include <utility>
-
-#include <cmath>
-#include <iostream>
-
 //
 // Created by karl on 01.06.19.
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <utility>
+#include <iostream>
+
+#include "Defines.h"
 #include "Ship.h"
 
 std::vector<float> &Ship::getAngularVelocity() {
@@ -28,7 +26,7 @@ std::vector<float> &Ship::getLinearAccel() {
     return linearAccel;
 }
 
-const std::vector<float> &Ship::getPosition() const {
+const std::vector<double> &Ship::getPosition() const {
     return position;
 }
 
@@ -55,13 +53,16 @@ void Ship::update(float delta) {
 
     basis = q.matrix() * basis;
 
-    std::cout << basis << std::endl << std::endl;
+    if (debug_output) std::cout << basis << std::endl << std::endl;
 
     // Apply rotation to our angle Vector (Euler angles)
     Eigen::Vector3d eulerAngles = basis.eulerAngles(0, 1, 2);
-    angle[0] = eulerAngles[0];
-    angle[1] = eulerAngles[1];
-    angle[2] = eulerAngles[2];
+	// LEM: TODO: ask @KB:
+	// warning - conversion from 'double' to '_Ty' 
+	// --> either cast to (float) or change type to double
+    angle[0] = (float)eulerAngles[0];
+    angle[1] = (float)eulerAngles[1];
+    angle[2] = (float)eulerAngles[2];
 
     // Apply linear velocity relative to our angle
     Eigen::Vector3d pos = Eigen::Vector3d(getPosition()[0], getPosition()[1], getPosition()[2]);

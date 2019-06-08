@@ -22,7 +22,7 @@ public:
 
     std::vector<float> &getLinearAccel();
 
-    const std::vector<float> &getPosition() const;
+    const std::vector<double> &getPosition() const;
 
     const std::vector<float> &getAngle() const;
 
@@ -37,7 +37,7 @@ public:
     std::vector<float> angularAccel = std::vector<float>(3);
     std::vector<float> linearVelocity = std::vector<float>(3);
     std::vector<float> linearAccel = std::vector<float>(3);
-    std::vector<float> position = std::vector<float>(3);
+    std::vector<double> position = std::vector<double>(3);
     std::vector<float> angle = std::vector<float>(3);
     std::vector<float> angularThrust = std::vector<float>(3);
     std::vector<float> linearThrust = std::vector<float>(3);
