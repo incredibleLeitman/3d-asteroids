@@ -14,7 +14,7 @@ class Object {
 public:
     Object(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel);
 
-    void update(float delta);
+    virtual void update(float delta);
 
     Eigen::Vector3d angularVelocity;
     Eigen::Vector3d angularAccel;

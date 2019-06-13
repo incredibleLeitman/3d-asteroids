@@ -10,6 +10,7 @@
 #include "RandomRange.h"
 #include "Object.h"
 #include "TextureManager.h"
+#include "CollidableObject.h"
 
 int window;
 
@@ -21,7 +22,7 @@ GLuint ASTEROID_IMG_ID;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-Object player = Object(Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
+CollidableObject player = CollidableObject(Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0}, 5.0);
 
 void timer(int val) {
     glutPostRedisplay();
