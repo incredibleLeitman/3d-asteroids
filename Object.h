@@ -2,17 +2,17 @@
 // Created by karl on 01.06.19.
 //
 
-#ifndef ASTEROID_SHIP_H
-#define ASTEROID_SHIP_H
+#ifndef ASTEROID_OBJECT_H
+#define ASTEROID_OBJECT_H
 
 #include <vector>
 #include "Eigen/Geometry"
 
 
-class Ship {
+class Object {
 
 public:
-    Ship(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel);
+    Object(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel);
 
     void update(float delta);
 
@@ -28,4 +28,4 @@ public:
 };
 
 
-#endif //ASTEROID_SHIP_H
+#endif //ASTEROID_OBJECT_H

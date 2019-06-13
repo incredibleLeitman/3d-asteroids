@@ -8,9 +8,9 @@
 #include <iostream>
 
 #include "Defines.h"
-#include "Ship.h"
+#include "Object.h"
 
-void Ship::update(float delta) {
+void Object::update(float delta) {
     // Add acceleration depending on where there is thrust
     angularVelocity += angularAccel.cwiseProduct(angularThrust) * delta;
     Eigen::Vector3d addedLinearVelocity = linearAccel.cwiseProduct(linearThrust) * delta;
@@ -29,7 +29,7 @@ void Ship::update(float delta) {
     position += linearVelocity;
 }
 
-Ship::Ship(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : angularAccel(std::move(angularAccel)),
+Object::Object(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : angularAccel(std::move(angularAccel)),
                                                                               linearAccel(std::move(linearAccel)) {
     position[2] = 8; // TODO: Move start position
 }
