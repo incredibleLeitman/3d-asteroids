@@ -12,38 +12,19 @@
 class Ship {
 
 public:
-    Ship(std::vector<float> angularAccel, std::vector<float> linearAccel);
-
-    std::vector<float> &getAngularVelocity();
-
-    std::vector<float> &getAngularAccel();
-
-    std::vector<float> &getLinearVelocity();
-
-    std::vector<float> &getLinearAccel();
-
-    const std::vector<double> &getPosition() const;
-
-    const std::vector<float> &getAngle() const;
+    Ship(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel);
 
     void update(float delta);
 
-    std::vector<float> &getAngularThrust();
-
-    std::vector<float> &getLinearThrust();
-
-public:
-    std::vector<float> angularVelocity = std::vector<float>(3);
-    std::vector<float> angularAccel = std::vector<float>(3);
-    std::vector<float> linearVelocity = std::vector<float>(3);
-    std::vector<float> linearAccel = std::vector<float>(3);
-    std::vector<double> position = std::vector<double>(3);
-    std::vector<float> angle = std::vector<float>(3);
-    std::vector<float> angularThrust = std::vector<float>(3);
-    std::vector<float> linearThrust = std::vector<float>(3);
+    Eigen::Vector3d angularVelocity;
+    Eigen::Vector3d angularAccel;
+    Eigen::Vector3d linearVelocity;
+    Eigen::Vector3d linearAccel;
+    Eigen::Vector3d position;
+    Eigen::Vector3d angularThrust;
+    Eigen::Vector3d linearThrust;
 
     Eigen::Matrix3d basis = Eigen::Matrix3d::Identity();
-    Eigen::Vector3d velocity;
 };
 
 

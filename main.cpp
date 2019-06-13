@@ -21,7 +21,7 @@ GLuint ASTEROID_IMG_ID;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-Ship player = Ship(std::vector<float>{25.0, 25.0, 25.0}, std::vector<float>{2.0, 2.0, 2.0});
+Ship player = Ship(Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
 
 void timer(int val) {
     glutPostRedisplay();
@@ -39,11 +39,6 @@ void resize(int width, int height) {
     gluPerspective(70.0f, (float) width / (float) height, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
 }
-
-/* LEM: TODO: ask @KB: not needed, remove?
-float deg2rad(float degrees) {
-    return degrees * (3.141592653589793238463 / 180.0);
-}*/
 
 void keyPressed(unsigned char key, int x, int y) {
 	// Esc is exit
@@ -64,61 +59,61 @@ void keyPressed(unsigned char key, int x, int y) {
 			break;
         // Forward
         case 'i':
-            player.getLinearThrust()[2] = -1;
+            player.linearThrust[2] = -1;
             break;
         case 'k':
-            player.getLinearThrust()[2] = 1;
+            player.linearThrust[2] = 1;
             break;
 
             // Sideways
         case 'j':
-            player.getLinearThrust()[0] = -1;
+            player.linearThrust[0] = -1;
             break;
         case 'l':
-            player.getLinearThrust()[0] = 1;
+            player.linearThrust[0] = 1;
             break;
 
             // Up
         case 'u':
-            player.getLinearThrust()[1] = 1;
+            player.linearThrust[1] = 1;
             break;
         case 'o':
-            player.getLinearThrust()[1] = -1;
+            player.linearThrust[1] = -1;
             break;
 
             // Yaw
         case 'q':
-            player.getAngularThrust()[1] = 1;
+            player.angularThrust[1] = 1;
             break;
         case 'e':
-            player.getAngularThrust()[1] = -1;
+            player.angularThrust[1] = -1;
             break;
 
             // Roll
         case 'a':
-            player.getAngularThrust()[2] = 1;
+            player.angularThrust[2] = 1;
             break;
         case 'd':
-            player.getAngularThrust()[2] = -1;
+            player.angularThrust[2] = -1;
             break;
 
             // Pitch
         case 'w':
-            player.getAngularThrust()[0] = 1;
+            player.angularThrust[0] = 1;
             break;
         case 's':
-            player.getAngularThrust()[0] = -1;
+            player.angularThrust[0] = -1;
             break;
 
             // Emergency
         case ' ':
-            player.getAngularVelocity()[0] = 0;
-            player.getAngularVelocity()[1] = 0;
-            player.getAngularVelocity()[2] = 0;
+            player.angularVelocity[0] = 0;
+            player.angularVelocity[1] = 0;
+            player.angularVelocity[2] = 0;
 
-            player.velocity[0] = 0;
-            player.velocity[1] = 0;
-            player.velocity[2] = 0;
+            player.linearVelocity[0] = 0;
+            player.linearVelocity[1] = 0;
+            player.linearVelocity[2] = 0;
 
     }
 }
@@ -128,50 +123,50 @@ void keyReleased(unsigned char key, int x, int y) {
 	switch (key) {
 		// Forward
 	case 'i':
-		//player.getLinearThrust()[2] = 0;
+		//player.linearThrust[2] = 0;
 		//break;
 	case 'k':
-		player.getLinearThrust()[2] = 0;
+		player.linearThrust[2] = 0;
 		break;
 
 		// Sideways
 	case 'j':
-		//player.getLinearThrust()[0] = 0;
+		//player.linearThrust[0] = 0;
 		//break;
 	case 'l':
-		player.getLinearThrust()[0] = 0;
+		player.linearThrust[0] = 0;
 		break;
 
 		// Up
 	case 'u':
-		//player.getLinearThrust()[1] = 0;
+		//player.linearThrust[1] = 0;
 		//break;
 	case 'o':
-		player.getLinearThrust()[1] = 0;
+		player.linearThrust[1] = 0;
 		break;
 
 		// Yaw
 	case 'q':
-		//player.getAngularThrust()[1] = 0;
+		//player.angularThrust[1] = 0;
 		//break;
 	case 'e':
-		player.getAngularThrust()[1] = 0;
+		player.angularThrust[1] = 0;
 		break;
 
 		// Roll
 	case 'a':
-		//player.getAngularThrust()[2] = 0;
+		//player.angularThrust[2] = 0;
 		//break;
 	case 'd':
-		player.getAngularThrust()[2] = 0;
+		player.angularThrust[2] = 0;
 		break;
 
 		// Pitch
 	case 'w':
-		//player.getAngularThrust()[0] = 0;
+		//player.angularThrust[0] = 0;
 		//break;
 	case 's':
-		player.getAngularThrust()[0] = 0;
+		player.angularThrust[0] = 0;
 		break;
 	}
 }
@@ -246,8 +241,7 @@ void applyPlayerMovement()
 
 	glMultMatrixf(matrix);
 
-	std::vector<double> playerPos = player.getPosition();
-	glTranslatef(-playerPos[0], -playerPos[1], -playerPos[2]);
+	glTranslatef(-player.position[0], -player.position[1], -player.position[2]);
 }
 
 void displayTest()
@@ -396,7 +390,7 @@ void init(int width, int height) {
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
-	if (TextureManager::Inst()->LoadTexture("..\\resources\\asteroid.tga", ASTEROID_IMG_ID) == false)
+	if (TextureManager::Inst()->LoadTexture("resources/asteroid.tga", ASTEROID_IMG_ID) == false)
 		std::cout << "loading texture failed..." << std::endl;
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

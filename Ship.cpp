@@ -10,79 +10,26 @@
 #include "Defines.h"
 #include "Ship.h"
 
-std::vector<float> &Ship::getAngularVelocity() {
-    return angularVelocity;
-}
-
-std::vector<float> &Ship::getAngularAccel() {
-    return angularAccel;
-}
-
-std::vector<float> &Ship::getLinearVelocity() {
-    return linearVelocity;
-}
-
-std::vector<float> &Ship::getLinearAccel() {
-    return linearAccel;
-}
-
-const std::vector<double> &Ship::getPosition() const {
-    return position;
-}
-
-const std::vector<float> &Ship::getAngle() const {
-    return angle;
-}
-
 void Ship::update(float delta) {
-    Eigen::Vector3d newVel;
-    Eigen::Vector3d newAng;
-
-    // Update velocities
-    for (int dim = 0; dim < 3; dim++) {
-        getAngularVelocity()[dim] += getAngularAccel()[dim] * getAngularThrust()[dim] * delta;
-        newVel[dim] = getLinearAccel()[dim] * getLinearThrust()[dim] * delta;
-    }
+    // Add acceleration depending on where there is thrust
+    angularVelocity += angularAccel.cwiseProduct(angularThrust) * delta;
+    Eigen::Vector3d addedLinearVelocity = linearAccel.cwiseProduct(linearThrust) * delta;
 
     // Rotate our basis depending on how much we're rotating this frame
-    Eigen::AngleAxisd rollAngle(getAngularVelocity()[2] * (M_PI / 180) * delta, basis.col(2));
-    Eigen::AngleAxisd yawAngle(getAngularVelocity()[1] * (M_PI / 180) * delta, basis.col(1));
-    Eigen::AngleAxisd pitchAngle(getAngularVelocity()[0] * (M_PI / 180) * delta, basis.col(0));
+    Eigen::AngleAxisd rollAngle(angularVelocity[2] * (M_PI / 180) * delta, basis.col(2));
+    Eigen::AngleAxisd yawAngle(angularVelocity[1] * (M_PI / 180) * delta, basis.col(1));
+    Eigen::AngleAxisd pitchAngle(angularVelocity[0] * (M_PI / 180) * delta, basis.col(0));
 
     Eigen::Quaternion<double> q = rollAngle * yawAngle * pitchAngle;
-
     basis = q.matrix() * basis;
 
-    if (debug_output) std::cout << basis << std::endl << std::endl;
+    // Add this frame's velocity to our global linear velocity, relative to our angle
+    linearVelocity += basis * addedLinearVelocity * delta;
 
-    // Apply rotation to our angle Vector (Euler angles)
-    Eigen::Vector3d eulerAngles = basis.eulerAngles(0, 1, 2);
-	// LEM: TODO: ask @KB:
-	// warning - conversion from 'double' to '_Ty' 
-	// --> either cast to (float) or change type to double
-    angle[0] = (float)eulerAngles[0];
-    angle[1] = (float)eulerAngles[1];
-    angle[2] = (float)eulerAngles[2];
-
-    // Apply linear velocity relative to our angle
-    Eigen::Vector3d pos = Eigen::Vector3d(getPosition()[0], getPosition()[1], getPosition()[2]);
-    velocity += basis * newVel * delta;
-    pos += velocity;
-
-    position[0] = pos[0];
-    position[1] = pos[1];
-    position[2] = pos[2];
+    position += linearVelocity;
 }
 
-Ship::Ship(std::vector<float> angularAccel, std::vector<float> linearAccel) : angularAccel(std::move(angularAccel)),
+Ship::Ship(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : angularAccel(std::move(angularAccel)),
                                                                               linearAccel(std::move(linearAccel)) {
     position[2] = 8; // TODO: Move start position
-}
-
-std::vector<float> &Ship::getAngularThrust() {
-    return angularThrust;
-}
-
-std::vector<float> &Ship::getLinearThrust() {
-    return linearThrust;
 }
