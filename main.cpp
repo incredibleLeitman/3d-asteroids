@@ -6,11 +6,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "Defines.h"
-#include "RandomRange.h"
-#include "Object.h"
-#include "TextureManager.h"
 #include "CollidableObject.h"
+#include "Defines.h"
+#include "Object.h"
+#include "ObjectSpawner.h"
+#include "RandomRange.h"
+#include "TextureManager.h"
 
 int window;
 
@@ -26,6 +27,8 @@ const GLuint SUN_IMG_ID =		4;
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
 CollidableObject player = CollidableObject(Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0}, 5.0);
+
+ObjectSpawner spawner = ObjectSpawner();
 
 void timer(int val) {
     glutPostRedisplay();
@@ -255,7 +258,7 @@ void displayTest()
 
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	TextureManager::Inst()->BindTexture(COCKPIT_IMG_ID);
+	TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
@@ -267,7 +270,7 @@ void displayTest()
 
 	applyPlayerMovement();
 
-	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
+	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
 
 	// sun
 	glDisable(GL_LIGHTING);
@@ -285,7 +288,7 @@ void displayTest()
 	gluSphere(earth, 0.9, 36, 72);
 
 	// test 2 -> checkout gluNewQuadric
-	TextureManager::Inst()->BindTexture(EARTH_IMG_ID);
+	TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
 	glTranslatef(-4.0, 0.0, 0.0);
 	earth = gluNewQuadric();
 	gluQuadricTexture(earth, GL_TRUE);
@@ -314,7 +317,7 @@ void displayTest()
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
 
 	glEnd();
-	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
+	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
 	glBegin(GL_QUADS);
 
 	// bottom face
@@ -350,7 +353,7 @@ void display() {
 	// draw "cockpit" before applying playerMovement
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	TextureManager::Inst()->BindTexture(COCKPIT_IMG_ID);
+	TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
@@ -386,7 +389,7 @@ void display() {
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0, 0.0);
     //glutSolidSphere(1.0, 15, 15);
-	TextureManager::Inst()->BindTexture(SUN_IMG_ID);
+	TextureManager::Inst()->bindTexture(SUN_IMG_ID);
 	GLUquadric *sphere = gluNewQuadric();
 	gluQuadricTexture(sphere, GL_TRUE);
 	gluSphere(sphere, 1, 36, 72);
@@ -402,7 +405,7 @@ void display() {
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
     glColor3f(1.0, 1.0, 1.0);
     //glutSolidSphere(0.4, 10, 10);
-	TextureManager::Inst()->BindTexture(EARTH_IMG_ID);
+	TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
 	sphere = gluNewQuadric();
 	gluQuadricTexture(sphere, GL_TRUE);
 	gluSphere(sphere, 0.3, 36, 72);
@@ -414,7 +417,7 @@ void display() {
     //glColor3f(0.3f, 0.7f, 0.3f);
 	glColor3f(1, 1, 1);
     //glutSolidSphere(0.1f, 10, 10);
-	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
+	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
 	sphere = gluNewQuadric();
 	gluQuadricTexture(sphere, GL_TRUE);
 	gluSphere(sphere, 0.1, 36, 72);
@@ -441,10 +444,16 @@ void init(int width, int height) {
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
-	TextureManager::Inst()->LoadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
-	TextureManager::Inst()->LoadTexture("resources/earth.tga", EARTH_IMG_ID);
-	TextureManager::Inst()->LoadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
-	TextureManager::Inst()->LoadTexture("resources/sun.tga", SUN_IMG_ID);
+	// load textures
+	TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
+	TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
+	TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
+	TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
+
+	// create objects
+	spawner.createSphere();
+	spawner.createCube();
+	// ...
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);

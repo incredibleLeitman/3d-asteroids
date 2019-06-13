@@ -23,7 +23,7 @@ TextureManager::~TextureManager()
 	FreeImage_DeInitialise(); // call this ONLY when linking with FreeImage as a static library
 #endif
 
-	UnloadAllTextures();
+	unloadAllTextures();
 	m_inst = 0;
 }
 
@@ -38,7 +38,7 @@ void TextureManager::reportGLError(const char * msg)
 	return;
 }
 
-bool TextureManager::LoadTexture(const char* filename, const unsigned int texID, GLenum image_format, GLint internal_format, GLint level, GLint border)
+bool TextureManager::loadTexture(const char* filename, const unsigned int texID, GLenum image_format, GLint internal_format, GLint level, GLint border)
 {
 	/* TODO: maybe use FREEIMAGE_LIB to be able to load .jpg files?
 	//image format
@@ -135,7 +135,7 @@ bool TextureManager::LoadTexture(const char* filename, const unsigned int texID,
 	return true;
 }
 
-bool TextureManager::UnloadTexture(const unsigned int texID)
+bool TextureManager::unloadTexture(const unsigned int texID)
 {
 	bool result(true);
 	//if this texture ID mapped, unload it's texture, and remove it from the map
@@ -153,7 +153,7 @@ bool TextureManager::UnloadTexture(const unsigned int texID)
 	return result;
 }
 
-bool TextureManager::BindTexture(const unsigned int texID)
+bool TextureManager::bindTexture(const unsigned int texID)
 {
 	bool result(true);
 	if (m_texID.find(texID) != m_texID.end()) //if this texture ID mapped, bind it's texture as current
@@ -168,14 +168,14 @@ bool TextureManager::BindTexture(const unsigned int texID)
 	return result;
 }
 
-void TextureManager::UnloadAllTextures()
+void TextureManager::unloadAllTextures()
 {
 	//start at the begginning of the texture map
 	std::map<unsigned int, GLuint>::iterator i = m_texID.begin();
 
 	//Unload the textures untill the end of the texture map is found
 	while (i != m_texID.end())
-		UnloadTexture(i->first);
+		unloadTexture(i->first);
 
 	//clear the texture map
 	m_texID.clear();
