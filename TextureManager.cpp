@@ -156,13 +156,15 @@ bool TextureManager::UnloadTexture(const unsigned int texID)
 bool TextureManager::BindTexture(const unsigned int texID)
 {
 	bool result(true);
-	//if this texture ID mapped, bind it's texture as current
-	if (m_texID.find(texID) != m_texID.end())
+	if (m_texID.find(texID) != m_texID.end()) //if this texture ID mapped, bind it's texture as current
+	{
 		glBindTexture(GL_TEXTURE_2D, m_texID[texID]);
-	//otherwise, binding failed
-	else
+	}
+	else //otherwise, binding failed
+	{
+		fprintf(stderr, "error binding texture image for id: %d\n", texID);
 		result = false;
-
+	}
 	return result;
 }
 

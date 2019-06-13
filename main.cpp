@@ -18,7 +18,10 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-GLuint ASTEROID_IMG_ID;
+const GLuint ASTEROID_IMG_ID =	1;
+const GLuint EARTH_IMG_ID =		2;
+const GLuint COCKPIT_IMG_ID =	3;
+const GLuint SUN_IMG_ID =		4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
@@ -250,14 +253,45 @@ void displayTest()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	applyPlayerMovement();
-
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//glBindTexture(GL_TEXTURE_2D, textures[0]);
-	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
-		std::cout << "binding texture failed..." << std::endl;
+	TextureManager::Inst()->BindTexture(COCKPIT_IMG_ID);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
+	glTexCoord2f(1, 0); glVertex3f(1.75f, -1.0f, -1.0f);
+	glTexCoord2f(1, 1); glVertex3f(1.75f, -0.5f, -1.0f);
+	glTexCoord2f(0, 1); glVertex3f(-1.75f, -0.5f, -1.0f);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
+	applyPlayerMovement();
+
+	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
+
+	// sun
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0, 1.0, 0.0);
+	glutSolidSphere(1, 15, 15);
+	glEnable(GL_LIGHTING);
+
+	glEnable(GL_TEXTURE_2D);
+
+	// test -> using custom uv mapping
+	glTranslatef(-4.0, 0.0, 0.0);	
+	//drawAroundPlanetGrid(1, 1, 500, 500, 1);
+	GLUquadric *earth = gluNewQuadric();
+	gluQuadricTexture(earth, GL_TRUE);
+	gluSphere(earth, 0.9, 36, 72);
+
+	// test 2 -> checkout gluNewQuadric
+	TextureManager::Inst()->BindTexture(EARTH_IMG_ID);
+	glTranslatef(-4.0, 0.0, 0.0);
+	earth = gluNewQuadric();
+	gluQuadricTexture(earth, GL_TRUE);
+	gluSphere(earth, 0.9, 36, 72);
+
+	glTranslatef(12.0, 0.0, 0.0);
 
 	glBegin(GL_QUADS);
 	// front face
@@ -280,13 +314,7 @@ void displayTest()
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
 
 	glEnd();
-	/*glDisable(GL_TEXTURE_2D);
-
-	glEnable(GL_TEXTURE_2D);*/
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	//glBindTexture(GL_TEXTURE_2D, textures[1]);
-	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
-		std::cout << "binding texture failed..." << std::endl;
+	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
 	glBegin(GL_QUADS);
 
 	// bottom face
@@ -319,6 +347,19 @@ void display() {
     hour = hour - ((int) (hour / 24)) * 24;
     day = day - ((int) (day / 365)) * 365;
 
+	// draw "cockpit" before applying playerMovement
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	TextureManager::Inst()->BindTexture(COCKPIT_IMG_ID);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
+	glTexCoord2f(1, 0); glVertex3f(1.75f, -1.0f, -1.0f);
+	glTexCoord2f(1, 1); glVertex3f(1.75f, -0.5f, -1.0f);
+	glTexCoord2f(0, 1); glVertex3f(-1.75f, -0.5f, -1.0f);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
 	applyPlayerMovement();
 
     // Stars
@@ -341,16 +382,14 @@ void display() {
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	if (TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID) == false)
-		std::cout << "binding texture failed..." << std::endl;
-
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-
-    // sun
+	// sun
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0, 0.0);
-    glutSolidSphere(1.0, 15, 15);
+    //glutSolidSphere(1.0, 15, 15);
+	TextureManager::Inst()->BindTexture(SUN_IMG_ID);
+	GLUquadric *sphere = gluNewQuadric();
+	gluQuadricTexture(sphere, GL_TRUE);
+	gluSphere(sphere, 1, 36, 72);
     glEnable(GL_LIGHTING);
 
     // earth
@@ -362,14 +401,25 @@ void display() {
     // rotate the earth on its axis
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
     glColor3f(1.0, 1.0, 1.0);
-    glutSolidSphere(0.4, 10, 10);
+    //glutSolidSphere(0.4, 10, 10);
+	TextureManager::Inst()->BindTexture(EARTH_IMG_ID);
+	sphere = gluNewQuadric();
+	gluQuadricTexture(sphere, GL_TRUE);
+	gluSphere(sphere, 0.3, 36, 72);
     glPopMatrix();
 
     // moon
     glRotatef(360.0 * 4 * day / 365.0, 0.0, 1.0, 0.0);
     glTranslatef(0.7f, 0.0f, 0.0f);
-    glColor3f(0.3f, 0.7f, 0.3f);
-    glutSolidSphere(0.1f, 10, 10);
+    //glColor3f(0.3f, 0.7f, 0.3f);
+	glColor3f(1, 1, 1);
+    //glutSolidSphere(0.1f, 10, 10);
+	TextureManager::Inst()->BindTexture(ASTEROID_IMG_ID);
+	sphere = gluNewQuadric();
+	gluQuadricTexture(sphere, GL_TRUE);
+	gluSphere(sphere, 0.1, 36, 72);
+
+	glDisable(GL_TEXTURE_2D);
 
     glutSwapBuffers();
 }
@@ -391,8 +441,10 @@ void init(int width, int height) {
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
-	if (TextureManager::Inst()->LoadTexture("resources/asteroid.tga", ASTEROID_IMG_ID) == false)
-		std::cout << "loading texture failed..." << std::endl;
+	TextureManager::Inst()->LoadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
+	TextureManager::Inst()->LoadTexture("resources/earth.tga", EARTH_IMG_ID);
+	TextureManager::Inst()->LoadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
+	TextureManager::Inst()->LoadTexture("resources/sun.tga", SUN_IMG_ID);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
@@ -415,8 +467,8 @@ int main(int argc, char **argv) {
     glutInitWindowSize(1920, 1080);
     glutInitWindowPosition(0, 0);
     window = glutCreateWindow("3D Asteroids");
-    //glutDisplayFunc(&display);
-	glutDisplayFunc(&displayTest);
+    glutDisplayFunc(&display);
+	//glutDisplayFunc(&displayTest);
 
     glutTimerFunc(1000 / 60.0, &timer, 1);
 
