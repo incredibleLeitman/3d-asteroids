@@ -6,7 +6,7 @@
 #define ASTEROID_COLLIDABLE_H
 
 
-#include "Eigen/Geometry"
+#include "../Eigen/Geometry"
 
 class Collidable {
 public:

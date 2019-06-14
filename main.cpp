@@ -6,12 +6,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "CollidableObject.h"
+#include "BaseObjects/CollidableObject.h"
 #include "Defines.h"
-#include "Object.h"
+#include "BaseObjects/Object.h"
 #include "ObjectSpawner.h"
-#include "RandomRange.h"
-#include "TextureManager.h"
+#include "Util/RandomRange.h"
+#include "Util/TextureManager.h"
 
 int window;
 

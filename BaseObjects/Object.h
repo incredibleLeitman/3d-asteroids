@@ -6,7 +6,7 @@
 #define ASTEROID_OBJECT_H
 
 #include <vector>
-#include "Eigen/Geometry"
+#include "../Eigen/Geometry"
 
 
 class Object {

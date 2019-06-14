@@ -7,7 +7,7 @@
 #include <utility>
 #include <iostream>
 
-#include "Defines.h"
+#include "../Defines.h"
 #include "Object.h"
 
 void Object::update(float delta) {
