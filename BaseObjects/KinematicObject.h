@@ -28,14 +28,17 @@ public:
 
     virtual void update(float delta);
 
-    Eigen::Vector3d angularVelocity;
-    Eigen::Vector3d angularAccel;
-    Eigen::Vector3d linearVelocity;
-    Eigen::Vector3d linearAccel;
     Eigen::Vector3d angularThrust;
     Eigen::Vector3d linearThrust;
 
-    Eigen::Matrix3d basis = Eigen::Matrix3d::Identity();
+    Eigen::Vector3d angularVelocity;
+    Eigen::Vector3d linearVelocity;
+
+private:
+    Eigen::Vector3d angularAccel;
+    Eigen::Vector3d linearAccel;
+
+    Eigen::Matrix3d localRotationMatrix = Eigen::Matrix3d::Identity();
 };
 
 
