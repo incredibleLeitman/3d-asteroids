@@ -8,7 +8,7 @@
 
 #include "BaseObjects/CollidableObject.h"
 #include "Defines.h"
-#include "BaseObjects/SpatialObject.h"
+#include "BaseObjects/KinematicObject.h"
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
 #include "Util/TextureManager.h"
@@ -29,7 +29,7 @@ const GLuint SUN_IMG_ID = 4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-std::shared_ptr<SpatialObject> player = std::make_shared<SpatialObject>("player", Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
+std::shared_ptr<KinematicObject> player = std::make_shared<KinematicObject>("player", Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
 
 ObjectSpawner spawner = ObjectSpawner();
 

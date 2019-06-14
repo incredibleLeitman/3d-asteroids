@@ -17,3 +17,11 @@ void Object::addChild(std::shared_ptr<Object> child) {
 
     child->parent = std::shared_ptr<Object>(this);
 }
+
+Eigen::Matrix4d Object::getTransform() {
+    if (getParent() == nullptr) {
+        return transform;
+    } else {
+        return transform * getParent()->getTransform();
+    }
+}

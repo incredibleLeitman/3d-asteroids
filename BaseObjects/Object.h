@@ -9,11 +9,16 @@
 #include <string>
 #include <map>
 #include <memory>
+#include "../Eigen/Geometry"
 
 class Object {
 
 public:
     Object(std::string name) : name(name) {};
+
+    Object(std::string name, Eigen::Vector3d startPosition) : name(name) {
+        transform.col(3).head<3>() = startPosition;
+    };
 
     std::shared_ptr<Object> getParent();
 
@@ -21,11 +26,13 @@ public:
 
     void addChild(std::shared_ptr<Object> child);
 
+    Eigen::Matrix4d getTransform();
+
 private:
     std::map<std::string, std::shared_ptr<Object>> children;
     std::shared_ptr<Object> parent;
     std::string name;
-
+    Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
 };
 
 

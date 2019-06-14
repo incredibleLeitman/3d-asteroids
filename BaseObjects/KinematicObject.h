@@ -2,18 +2,18 @@
 // Created by karl on 01.06.19.
 //
 
-#ifndef ASTEROID_SPATIALOBJECT_H
-#define ASTEROID_SPATIALOBJECT_H
+#ifndef ASTEROID_KINEMATICOBJECT_H
+#define ASTEROID_KINEMATICOBJECT_H
 
 #include <vector>
 #include "../Eigen/Geometry"
 #include "Object.h"
 
 
-class SpatialObject : public Object {
+class KinematicObject : public Object {
 
 public:
-    SpatialObject(std::string name, Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : Object(name),
+    KinematicObject(std::string name, Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : Object(name),
                                                                                                  angularAccel(
                                                                                                          angularAccel),
                                                                                                  linearAccel(
@@ -33,4 +33,4 @@ public:
 };
 
 
-#endif //ASTEROID_SPATIALOBJECT_H
+#endif //ASTEROID_KINEMATICOBJECT_H

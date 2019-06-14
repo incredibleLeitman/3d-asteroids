@@ -8,7 +8,7 @@
 #define ASTEROID_COLLIDABLEOBJECT_H
 
 
-#include "SpatialObject.h"
+#include "KinematicObject.h"
 
 class CollidableObject : public Object {
 public:
@@ -16,6 +16,7 @@ public:
 
     bool collidesWith(CollidableObject other);
 
+private:
     Eigen::Vector3d origin;
     double radius;
 };

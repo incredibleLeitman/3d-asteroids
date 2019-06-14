@@ -9,9 +9,9 @@
 #include <iostream>
 
 #include "../Defines.h"
-#include "SpatialObject.h"
+#include "KinematicObject.h"
 
-void SpatialObject::update(float delta) {
+void KinematicObject::update(float delta) {
     // Add acceleration depending on where there is thrust
     angularVelocity += angularAccel.cwiseProduct(angularThrust) * delta;
     Eigen::Vector3d addedLinearVelocity = linearAccel.cwiseProduct(linearThrust) * delta;
@@ -28,4 +28,6 @@ void SpatialObject::update(float delta) {
     linearVelocity += basis * addedLinearVelocity * delta;
 
     position += linearVelocity;
+
+    // TODO: Update transform (from Object class)
 }

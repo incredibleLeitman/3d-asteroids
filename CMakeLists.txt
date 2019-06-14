@@ -10,8 +10,8 @@ include_directories(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIRS})
 
 add_executable(asteroid
         main.cpp
-        BaseObjects/SpatialObject.cpp
-        BaseObjects/SpatialObject.h
+        BaseObjects/KinematicObject.cpp
+        BaseObjects/KinematicObject.h
         Util/tga.h
         Util/tga.cpp
         Defines.h
