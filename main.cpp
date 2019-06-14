@@ -15,14 +15,17 @@
 
 int window;
 
+int width;
+int height;
+
 float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-const GLuint ASTEROID_IMG_ID =	1;
-const GLuint EARTH_IMG_ID =		2;
-const GLuint COCKPIT_IMG_ID =	3;
-const GLuint SUN_IMG_ID =		4;
+const GLuint ASTEROID_IMG_ID = 1;
+const GLuint EARTH_IMG_ID = 2;
+const GLuint COCKPIT_IMG_ID = 3;
+const GLuint SUN_IMG_ID = 4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
@@ -43,12 +46,11 @@ void resize(int width, int height) {
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(70.0f, (float) width / (float) height, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
 }
 
 void keyPressed(unsigned char key, int x, int y) {
-	// Esc is exit
+    // Esc is exit
 
     // W and S is pitch
     // A and D is roll
@@ -59,12 +61,12 @@ void keyPressed(unsigned char key, int x, int y) {
     // U and O are up
 
     switch (key) {
-		// exit
-		case 27:
-			glutDestroyWindow(window);
-			exit(0);
-			break;
-        // Forward
+        // exit
+        case 27:
+            glutDestroyWindow(window);
+            exit(0);
+            break;
+            // Forward
         case 'i':
             player.linearThrust[2] = -1;
             break;
@@ -126,56 +128,56 @@ void keyPressed(unsigned char key, int x, int y) {
 }
 
 void keyReleased(unsigned char key, int x, int y) {
-	// LEM: TODO: ask @KB: fallthrough ugly?
-	switch (key) {
-		// Forward
-	case 'i':
-		//player.linearThrust[2] = 0;
-		//break;
-	case 'k':
-		player.linearThrust[2] = 0;
-		break;
+    // LEM: TODO: ask @KB: fallthrough ugly?
+    switch (key) {
+        // Forward
+        case 'i':
+            //player.linearThrust[2] = 0;
+            //break;
+        case 'k':
+            player.linearThrust[2] = 0;
+            break;
 
-		// Sideways
-	case 'j':
-		//player.linearThrust[0] = 0;
-		//break;
-	case 'l':
-		player.linearThrust[0] = 0;
-		break;
+            // Sideways
+        case 'j':
+            //player.linearThrust[0] = 0;
+            //break;
+        case 'l':
+            player.linearThrust[0] = 0;
+            break;
 
-		// Up
-	case 'u':
-		//player.linearThrust[1] = 0;
-		//break;
-	case 'o':
-		player.linearThrust[1] = 0;
-		break;
+            // Up
+        case 'u':
+            //player.linearThrust[1] = 0;
+            //break;
+        case 'o':
+            player.linearThrust[1] = 0;
+            break;
 
-		// Yaw
-	case 'q':
-		//player.angularThrust[1] = 0;
-		//break;
-	case 'e':
-		player.angularThrust[1] = 0;
-		break;
+            // Yaw
+        case 'q':
+            //player.angularThrust[1] = 0;
+            //break;
+        case 'e':
+            player.angularThrust[1] = 0;
+            break;
 
-		// Roll
-	case 'a':
-		//player.angularThrust[2] = 0;
-		//break;
-	case 'd':
-		player.angularThrust[2] = 0;
-		break;
+            // Roll
+        case 'a':
+            //player.angularThrust[2] = 0;
+            //break;
+        case 'd':
+            player.angularThrust[2] = 0;
+            break;
 
-		// Pitch
-	case 'w':
-		//player.angularThrust[0] = 0;
-		//break;
-	case 's':
-		player.angularThrust[0] = 0;
-		break;
-	}
+            // Pitch
+        case 'w':
+            //player.angularThrust[0] = 0;
+            //break;
+        case 's':
+            player.angularThrust[0] = 0;
+            break;
+    }
 }
 
 static void specialKeyPressed(int key, int x, int y) {
@@ -189,181 +191,95 @@ static void specialKeyPressed(int key, int x, int y) {
     }
 }
 
-void mouseButton(int button, int state, int x, int y)
-{
-	// mouse Example code
-	/*switch (button) {
-	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN) {
-			moving = 1;
-			begin_x = x;
-			begin_y = y;
+void mouseButton(int button, int state, int x, int y) {
+    // mouse Example code
+    /*switch (button) {
+    case GLUT_LEFT_BUTTON:
+        if (state == GLUT_DOWN) {
+            moving = 1;
+            begin_x = x;
+            begin_y = y;
 
-		}
-		else if (state == GLUT_UP) {
-			moving = 0;
-		}
-		break;
+        }
+        else if (state == GLUT_UP) {
+            moving = 0;
+        }
+        break;
 
-	default:
-		break;
-	}*/
+    default:
+        break;
+    }*/
 }
 
 void mouseMotion(int x, int y) {
-	// mouse Example code
-	/*if (moving) {
-		angle_y = angle_y + (x - begin_x);
-		angle_x = angle_x + (y - begin_y);
-		if (angle_x > 360.0) angle_x -= 360.0;
-		else if (angle_x < -360.0) angle_x += 360.0;
-		if (angle_y > 360.0) angle_y -= 360.0;
-		else if (angle_y < -360.0) angle_y += 360.0;
+    // mouse Example code
+    /*if (moving) {
+        angle_y = angle_y + (x - begin_x);
+        angle_x = angle_x + (y - begin_y);
+        if (angle_x > 360.0) angle_x -= 360.0;
+        else if (angle_x < -360.0) angle_x += 360.0;
+        if (angle_y > 360.0) angle_y -= 360.0;
+        else if (angle_y < -360.0) angle_y += 360.0;
 
-		begin_x = x;
-		begin_y = y;
-	}*/
+        begin_x = x;
+        begin_y = y;
+    }*/
 }
 
-void applyPlayerMovement()
-{
-	// Translate according to player variables
-	float matrix[16];
+void applyPlayerMovement() {
+    // Translate according to player variables
+    float matrix[16];
 
-	int accessorAdd = 0;
-	for (int i = 0; i < 12; i++) {
-		if ((i + 1) % 4 == 0) {
-			matrix[i] = 0;
-			accessorAdd++;
-		}
-		else {
-			matrix[i] = player.basis.inverse()(i - accessorAdd);
-		}
-		if (debug_output) std::cout << matrix[i] << std::endl;
-	}
-	matrix[12] = 0;
-	matrix[13] = 0;
-	matrix[14] = 0;
-	matrix[15] = 1;
+    int accessorAdd = 0;
+    for (int i = 0; i < 12; i++) {
+        if ((i + 1) % 4 == 0) {
+            matrix[i] = 0;
+            accessorAdd++;
+        } else {
+            matrix[i] = player.basis.inverse()(i - accessorAdd);
+        }
+        if (debug_output) std::cout << matrix[i] << std::endl;
+    }
+    matrix[12] = 0;
+    matrix[13] = 0;
+    matrix[14] = 0;
+    matrix[15] = 1;
 
-	glMultMatrixf(matrix);
+    glMultMatrixf(matrix);
 
-	glTranslatef(-player.position[0], -player.position[1], -player.position[2]);
-}
-
-void displayTest()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
-
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
-	glTexCoord2f(1, 0); glVertex3f(1.75f, -1.0f, -1.0f);
-	glTexCoord2f(1, 1); glVertex3f(1.75f, -0.5f, -1.0f);
-	glTexCoord2f(0, 1); glVertex3f(-1.75f, -0.5f, -1.0f);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-
-	applyPlayerMovement();
-
-	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
-
-	// sun
-	glDisable(GL_LIGHTING);
-	glColor3f(1.0, 1.0, 0.0);
-	glutSolidSphere(1, 15, 15);
-	glEnable(GL_LIGHTING);
-
-	glEnable(GL_TEXTURE_2D);
-
-	// test -> using custom uv mapping
-	glTranslatef(-4.0, 0.0, 0.0);	
-	//drawAroundPlanetGrid(1, 1, 500, 500, 1);
-	GLUquadric *earth = gluNewQuadric();
-	gluQuadricTexture(earth, GL_TRUE);
-	gluSphere(earth, 0.9, 36, 72);
-
-	// test 2 -> checkout gluNewQuadric
-	TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
-	glTranslatef(-4.0, 0.0, 0.0);
-	earth = gluNewQuadric();
-	gluQuadricTexture(earth, GL_TRUE);
-	gluSphere(earth, 0.9, 36, 72);
-
-	glTranslatef(12.0, 0.0, 0.0);
-
-	glBegin(GL_QUADS);
-	// front face
-	//GLfloat fac = 2.0f;
-	//GLfloat fac = .5f;
-	GLfloat fac = 1.0f;
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-	glTexCoord2f(fac, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	glTexCoord2f(fac, fac); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, fac); glVertex3f(-1.0f, 1.0f, 1.0f);
-	// back face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	// top face
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-
-	glEnd();
-	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
-	glBegin(GL_QUADS);
-
-	// bottom face
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-	// right face
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-	// left face
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-	glutSwapBuffers();
+    glTranslatef(-player.position[0], -player.position[1], -player.position[2]);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
+    // Greater FOV the faster the player moves
+    gluPerspective(60 + std::min(player.linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
+
     hour += inc;
     day += inc / 24.0;
     hour = hour - ((int) (hour / 24)) * 24;
     day = day - ((int) (day / 365)) * 365;
 
-	// draw "cockpit" before applying playerMovement
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
+    // draw "cockpit" before applying playerMovement
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex3f(-1.75f, -1.0f, -1.0f);
-	glTexCoord2f(1, 0); glVertex3f(1.75f, -1.0f, -1.0f);
-	glTexCoord2f(1, 1); glVertex3f(1.75f, -0.5f, -1.0f);
-	glTexCoord2f(0, 1); glVertex3f(-1.75f, -0.5f, -1.0f);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 0);
+    glVertex3f(-1.75f, -1.0f, -1.0f);
+    glTexCoord2f(1, 0);
+    glVertex3f(1.75f, -1.0f, -1.0f);
+    glTexCoord2f(1, 1);
+    glVertex3f(1.75f, -0.5f, -1.0f);
+    glTexCoord2f(0, 1);
+    glVertex3f(-1.75f, -0.5f, -1.0f);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
 
-	applyPlayerMovement();
+    applyPlayerMovement();
 
     // Stars
     glDisable(GL_LIGHTING);
@@ -381,18 +297,18 @@ void display() {
     // ecliptic
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
-	// set textures
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    // set textures
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	// sun
+    // sun
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0, 0.0);
     //glutSolidSphere(1.0, 15, 15);
-	TextureManager::Inst()->bindTexture(SUN_IMG_ID);
-	GLUquadric *sphere = gluNewQuadric();
-	gluQuadricTexture(sphere, GL_TRUE);
-	gluSphere(sphere, 1, 36, 72);
+    TextureManager::Inst()->bindTexture(SUN_IMG_ID);
+    GLUquadric *sphere = gluNewQuadric();
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluSphere(sphere, 1, 36, 72);
     glEnable(GL_LIGHTING);
 
     // earth
@@ -405,29 +321,29 @@ void display() {
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
     glColor3f(1.0, 1.0, 1.0);
     //glutSolidSphere(0.4, 10, 10);
-	TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
-	sphere = gluNewQuadric();
-	gluQuadricTexture(sphere, GL_TRUE);
-	gluSphere(sphere, 0.3, 36, 72);
+    TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
+    sphere = gluNewQuadric();
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluSphere(sphere, 0.3, 36, 72);
     glPopMatrix();
 
     // moon
     glRotatef(360.0 * 4 * day / 365.0, 0.0, 1.0, 0.0);
     glTranslatef(0.7f, 0.0f, 0.0f);
     //glColor3f(0.3f, 0.7f, 0.3f);
-	glColor3f(1, 1, 1);
+    glColor3f(1, 1, 1);
     //glutSolidSphere(0.1f, 10, 10);
-	TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
-	sphere = gluNewQuadric();
-	gluQuadricTexture(sphere, GL_TRUE);
-	gluSphere(sphere, 0.1, 36, 72);
+    TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
+    sphere = gluNewQuadric();
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluSphere(sphere, 0.1, 36, 72);
 
-	glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
 
     glutSwapBuffers();
 }
 
-void init(int width, int height) {
+void init() {
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_diffuse[] = {1.0, 0.8, 0.6, 1.0};
     GLfloat mat_shininess[] = {15.0};
@@ -444,16 +360,16 @@ void init(int width, int height) {
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
 
-	// load textures
-	TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
-	TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
-	TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
-	TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
+    // load textures
+    TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
 
-	// create objects
-	spawner.createSphere();
-	spawner.createCube();
-	// ...
+    // create objects
+    spawner.createSphere();
+    spawner.createCube();
+    // ...
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
@@ -477,7 +393,6 @@ int main(int argc, char **argv) {
     glutInitWindowPosition(0, 0);
     window = glutCreateWindow("3D Asteroids");
     glutDisplayFunc(&display);
-	//glutDisplayFunc(&displayTest);
 
     glutTimerFunc(1000 / 60.0, &timer, 1);
 
@@ -485,11 +400,13 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(&keyPressed);
     glutKeyboardUpFunc(&keyReleased);
     glutSpecialFunc(&specialKeyPressed);
-	glutMouseFunc(&mouseButton);
-	glutMotionFunc(&mouseMotion);
+    glutMouseFunc(&mouseButton);
+    glutMotionFunc(&mouseMotion);
 
-    init(640, 480);
-	glutFullScreen();
+    width = 1920;
+    height = 1080;
+
+    init();
     glutMainLoop();
     return 0;
 }
