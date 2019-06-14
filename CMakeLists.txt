@@ -21,6 +21,10 @@ add_executable(asteroid
         BaseObjects/CollidableObject.cpp
         BaseObjects/CollidableObject.h
         ObjectSpawner.h
-        ObjectSpawner.cpp BaseObjects/Object.cpp BaseObjects/Object.h)
+        ObjectSpawner.cpp
+        BaseObjects/Object.cpp
+        BaseObjects/Object.h
+        BaseObjects/CameraObject.cpp
+        BaseObjects/CameraObject.h)
 
 target_link_libraries(asteroid ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})

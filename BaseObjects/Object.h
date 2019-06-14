@@ -20,6 +20,8 @@ public:
         transform.col(3).head<3>() = startPosition;
     };
 
+    virtual ~Object() = default;
+
     std::shared_ptr<Object> getParent();
 
     std::shared_ptr<Object> getChild(std::string name);

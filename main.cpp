@@ -12,6 +12,7 @@
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
 #include "Util/TextureManager.h"
+#include "BaseObjects/CameraObject.h"
 
 int window;
 
@@ -29,7 +30,8 @@ const GLuint SUN_IMG_ID = 4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-std::shared_ptr<KinematicObject> player = std::make_shared<KinematicObject>("player", Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
+std::shared_ptr<KinematicObject> player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{25.0, 25.0, 25.0},
+                                                                            Eigen::Vector3d{2.0, 2.0, 2.0});
 
 ObjectSpawner spawner = ObjectSpawner();
 
@@ -226,31 +228,6 @@ void mouseMotion(int x, int y) {
     }*/
 }
 
-void applyPlayerMovement() {
-    // Translate according to
-    float matrix[16];
-    Eigen::Matrix4d inverseTransform = player->getTransform().inverse();
-
-    for (int i = 0; i < 12; i++) {
-        if ((i + 1) % 4 == 0) {
-            matrix[i] = 0;
-        } else {
-            matrix[i] = inverseTransform(i);
-        }
-        if (debug_output) std::cout << matrix[i] << std::endl;
-    }
-
-    // We don't want the translation part since the player is the camera, which is centered
-    matrix[12] = 0;
-    matrix[13] = 0;
-    matrix[14] = 0;
-    matrix[15] = 1;
-
-    glMultMatrixf(matrix);
-
-    glTranslatef(-player->position[0], -player->position[1], -player->position[2]);
-}
-
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -281,7 +258,7 @@ void display() {
     glEnd();
     glDisable(GL_TEXTURE_2D);
 
-    applyPlayerMovement();
+    std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
     // Stars
     glDisable(GL_LIGHTING);
@@ -382,7 +359,8 @@ void init() {
 }
 
 int main(int argc, char **argv) {
-    player->addChild(std::make_shared<CollidableObject>("player->ollider", 5.0));
+    player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
+    player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
     for (int i = 0; i < count_stars; i++) {
         stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
