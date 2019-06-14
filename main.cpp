@@ -227,19 +227,20 @@ void mouseMotion(int x, int y) {
 }
 
 void applyPlayerMovement() {
-    // Translate according to player->variables
+    // Translate according to
     float matrix[16];
+    Eigen::Matrix4d inverseTransform = player->getTransform().inverse();
 
-    int accessorAdd = 0;
     for (int i = 0; i < 12; i++) {
         if ((i + 1) % 4 == 0) {
             matrix[i] = 0;
-            accessorAdd++;
         } else {
-            matrix[i] = player->basis.inverse()(i - accessorAdd);
+            matrix[i] = inverseTransform(i);
         }
         if (debug_output) std::cout << matrix[i] << std::endl;
     }
+
+    // We don't want the translation part since the player is the camera, which is centered
     matrix[12] = 0;
     matrix[13] = 0;
     matrix[14] = 0;

@@ -28,7 +28,7 @@ public:
 
     Eigen::Matrix4d getTransform();
 
-private:
+protected:
     std::map<std::string, std::shared_ptr<Object>> children;
     std::shared_ptr<Object> parent;
     std::string name;

@@ -29,5 +29,9 @@ void KinematicObject::update(float delta) {
 
     position += linearVelocity;
 
-    // TODO: Update transform (from Object class)
+    // Update the Object's Transform
+    transform.col(0).head<3>() = basis.col(0);
+    transform.col(1).head<3>() = basis.col(1);
+    transform.col(2).head<3>() = basis.col(2);
+    transform.col(3).head<3>() = position;
 }
