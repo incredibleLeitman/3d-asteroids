@@ -3,6 +3,7 @@
 //
 
 #define _USE_MATH_DEFINES
+
 #include <cmath>
 #include <utility>
 #include <iostream>
@@ -30,6 +31,6 @@ void Object::update(float delta) {
 }
 
 Object::Object(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : angularAccel(std::move(angularAccel)),
-                                                                              linearAccel(std::move(linearAccel)) {
+                                                                            linearAccel(std::move(linearAccel)) {
     position[2] = 8; // TODO: Move start position
 }

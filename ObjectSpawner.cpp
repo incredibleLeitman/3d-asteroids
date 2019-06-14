@@ -1,10 +1,8 @@
 #include "ObjectSpawner.h"
 
-void ObjectSpawner::createSphere()
-{
+void ObjectSpawner::createSphere() {
 
 }
 
-void ObjectSpawner::createCube()
-{
+void ObjectSpawner::createCube() {
 }

@@ -1,10 +1,8 @@
 #include "RenderObject.h"
 
-RenderObject::RenderObject()
-{
+RenderObject::RenderObject() {
 }
 
-void RenderObject::render()
-{
+void RenderObject::render() {
 
 }

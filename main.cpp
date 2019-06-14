@@ -255,7 +255,8 @@ void display() {
     glLoadIdentity();
 
     // Greater FOV the faster the player moves
-    gluPerspective(60 + std::min(player.linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
+    gluPerspective(60 + std::min(player.linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
+                   10000.0f);
 
     hour += inc;
     day += inc / 24.0;

@@ -6,28 +6,28 @@
 #define TGA_OK                        0
 
 typedef struct {
-  int status;
-  unsigned char type, pixelDepth;
-  short int width, height;
-  unsigned char *imageData;
+    int status;
+    unsigned char type, pixelDepth;
+    short int width, height;
+    unsigned char *imageData;
 } tgaInfo;
 
-tgaInfo* tgaLoad(char *filename);
+tgaInfo *tgaLoad(char *filename);
 
-int tgaSave(char *filename, 
-            short int width, 
-            short int height, 
-            unsigned char pixelDepth, 
+int tgaSave(char *filename,
+            short int width,
+            short int height,
+            unsigned char pixelDepth,
             unsigned char *imageData);
 
-int tgaSaveSeries(char *filename, 
-                  short int width, 
-                  short int height, 
-                  unsigned char pixelDepth, 
+int tgaSaveSeries(char *filename,
+                  short int width,
+                  short int height,
+                  unsigned char pixelDepth,
                   unsigned char *imageData);
 
 void tgaRGBtoGreyscale(tgaInfo *info);
 
-int tgaGrabScreenSeries(char *filename, int x,int y, int w, int h);
+int tgaGrabScreenSeries(char *filename, int x, int y, int w, int h);
 
 void tgaDestroy(tgaInfo *info);

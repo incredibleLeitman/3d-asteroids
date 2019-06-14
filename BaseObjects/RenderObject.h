@@ -2,11 +2,11 @@
 #ifndef RENDER_OBJECT_H
 #define RENDER_OBJECT_H
 
-class RenderObject
-{
+class RenderObject {
 public:
-	RenderObject();
+    RenderObject();
 
-	void render();
+    void render();
 };
+
 #endif //RENDER_OBJECT_H
