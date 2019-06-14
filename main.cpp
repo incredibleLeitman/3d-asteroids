@@ -30,9 +30,9 @@ const GLuint SUN_IMG_ID = 4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-std::shared_ptr<KinematicObject> player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
-                                                                            Eigen::Vector3d{25.0, 25.0, 25.0},
-                                                                            Eigen::Vector3d{2.0, 2.0, 2.0});
+
+std::shared_ptr<Object> root = std::make_shared<Object>("Root");
+std::shared_ptr<KinematicObject> player;
 
 ObjectSpawner spawner = ObjectSpawner();
 
@@ -360,9 +360,17 @@ void init() {
 }
 
 int main(int argc, char **argv) {
+    // Build the player object and its children
+    player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
+                                               Eigen::Vector3d{25.0, 25.0, 25.0},
+                                               Eigen::Vector3d{2.0, 2.0, 2.0});
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
+    // Add the player to the root node
+    root->addChild(player);
+
+    // Generate some stars
     for (int i = 0; i < count_stars; i++) {
         stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
                                       (Random::ZeroToOne() - 0.5f) * 100.0f,
