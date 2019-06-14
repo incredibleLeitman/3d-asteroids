@@ -1,3 +1,9 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 //
 // Created by karl on 01.06.19.
 //
@@ -13,11 +19,12 @@
 class KinematicObject : public Object {
 
 public:
-    KinematicObject(std::string name, Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel) : Object(name),
-                                                                                                 angularAccel(
-                                                                                                         angularAccel),
-                                                                                                 linearAccel(
-                                                                                                         linearAccel) {};
+    KinematicObject(std::string name, Eigen::Vector3d startPos, Eigen::Vector3d angularAccel,
+                    Eigen::Vector3d linearAccel) : Object(std::move(name), std::move(startPos)),
+                                                   angularAccel(std::move(
+                                                           angularAccel)),
+                                                   linearAccel(std::move(
+                                                           linearAccel)) {};
 
     virtual void update(float delta);
 
@@ -25,7 +32,6 @@ public:
     Eigen::Vector3d angularAccel;
     Eigen::Vector3d linearVelocity;
     Eigen::Vector3d linearAccel;
-    Eigen::Vector3d position;
     Eigen::Vector3d angularThrust;
     Eigen::Vector3d linearThrust;
 

@@ -27,11 +27,10 @@ void KinematicObject::update(float delta) {
     // Add this frame's velocity to our global linear velocity, relative to our angle
     linearVelocity += basis * addedLinearVelocity * delta;
 
-    position += linearVelocity;
+    transform.col(3).head<3>() += linearVelocity;
 
     // Update the Object's Transform
     transform.col(0).head<3>() = basis.col(0);
     transform.col(1).head<3>() = basis.col(1);
     transform.col(2).head<3>() = basis.col(2);
-    transform.col(3).head<3>() = position;
 }

@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by karl on 14.06.19.
 //
@@ -14,9 +16,9 @@
 class Object {
 
 public:
-    Object(std::string name) : name(name) {};
+    Object(std::string name) : name(std::move(name)) {};
 
-    Object(std::string name, Eigen::Vector3d startPosition) : name(name) {
+    Object(std::string name, Eigen::Vector3d startPosition) : name(std::move(name)) {
         transform.col(3).head<3>() = startPosition;
     };
 
