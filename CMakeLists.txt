@@ -10,19 +10,17 @@ include_directories(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIRS})
 
 add_executable(asteroid
         main.cpp
-        BaseObjects/Object.cpp
-        BaseObjects/Object.h
+        BaseObjects/SpatialObject.cpp
+        BaseObjects/SpatialObject.h
         Util/tga.h
         Util/tga.cpp
         Defines.h
         Util/RandomRange.h
         Util/TextureManager.h
         Util/TextureManager.cpp
-        BaseObjects/Collidable.cpp
-        BaseObjects/Collidable.h
         BaseObjects/CollidableObject.cpp
         BaseObjects/CollidableObject.h
         ObjectSpawner.h
-        ObjectSpawner.cpp)
+        ObjectSpawner.cpp BaseObjects/Object.cpp BaseObjects/Object.h)
 
 target_link_libraries(asteroid ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})

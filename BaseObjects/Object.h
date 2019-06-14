@@ -1,30 +1,31 @@
 //
-// Created by karl on 01.06.19.
+// Created by karl on 14.06.19.
 //
 
 #ifndef ASTEROID_OBJECT_H
 #define ASTEROID_OBJECT_H
 
-#include <vector>
-#include "../Eigen/Geometry"
 
+#include <string>
+#include <map>
+#include <memory>
 
 class Object {
 
 public:
-    Object(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel);
+    Object(std::string name) : name(name) {};
 
-    virtual void update(float delta);
+    std::shared_ptr<Object> getParent();
 
-    Eigen::Vector3d angularVelocity;
-    Eigen::Vector3d angularAccel;
-    Eigen::Vector3d linearVelocity;
-    Eigen::Vector3d linearAccel;
-    Eigen::Vector3d position;
-    Eigen::Vector3d angularThrust;
-    Eigen::Vector3d linearThrust;
+    std::shared_ptr<Object> getChild(std::string name);
 
-    Eigen::Matrix3d basis = Eigen::Matrix3d::Identity();
+    void addChild(std::shared_ptr<Object> child);
+
+private:
+    std::map<std::string, std::shared_ptr<Object>> children;
+    std::shared_ptr<Object> parent;
+    std::string name;
+
 };
 
 

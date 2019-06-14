@@ -8,7 +8,7 @@
 
 #include "BaseObjects/CollidableObject.h"
 #include "Defines.h"
-#include "BaseObjects/Object.h"
+#include "BaseObjects/SpatialObject.h"
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
 #include "Util/TextureManager.h"
@@ -29,14 +29,14 @@ const GLuint SUN_IMG_ID = 4;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
-CollidableObject player = CollidableObject(Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0}, 5.0);
+std::shared_ptr<SpatialObject> player = std::make_shared<SpatialObject>("player", Eigen::Vector3d{25.0, 25.0, 25.0}, Eigen::Vector3d{2.0, 2.0, 2.0});
 
 ObjectSpawner spawner = ObjectSpawner();
 
 void timer(int val) {
     glutPostRedisplay();
     glutTimerFunc(1000 / 60.0, &timer, 1);
-    player.update(1 / 60.0);
+    player->update(1 / 60.0);
 }
 
 void resize(int width, int height) {
@@ -68,61 +68,61 @@ void keyPressed(unsigned char key, int x, int y) {
             break;
             // Forward
         case 'i':
-            player.linearThrust[2] = -1;
+            player->linearThrust[2] = -1;
             break;
         case 'k':
-            player.linearThrust[2] = 1;
+            player->linearThrust[2] = 1;
             break;
 
             // Sideways
         case 'j':
-            player.linearThrust[0] = -1;
+            player->linearThrust[0] = -1;
             break;
         case 'l':
-            player.linearThrust[0] = 1;
+            player->linearThrust[0] = 1;
             break;
 
             // Up
         case 'u':
-            player.linearThrust[1] = 1;
+            player->linearThrust[1] = 1;
             break;
         case 'o':
-            player.linearThrust[1] = -1;
+            player->linearThrust[1] = -1;
             break;
 
             // Yaw
         case 'q':
-            player.angularThrust[1] = 1;
+            player->angularThrust[1] = 1;
             break;
         case 'e':
-            player.angularThrust[1] = -1;
+            player->angularThrust[1] = -1;
             break;
 
             // Roll
         case 'a':
-            player.angularThrust[2] = 1;
+            player->angularThrust[2] = 1;
             break;
         case 'd':
-            player.angularThrust[2] = -1;
+            player->angularThrust[2] = -1;
             break;
 
             // Pitch
         case 'w':
-            player.angularThrust[0] = 1;
+            player->angularThrust[0] = 1;
             break;
         case 's':
-            player.angularThrust[0] = -1;
+            player->angularThrust[0] = -1;
             break;
 
             // Emergency
         case ' ':
-            player.angularVelocity[0] = 0;
-            player.angularVelocity[1] = 0;
-            player.angularVelocity[2] = 0;
+            player->angularVelocity[0] = 0;
+            player->angularVelocity[1] = 0;
+            player->angularVelocity[2] = 0;
 
-            player.linearVelocity[0] = 0;
-            player.linearVelocity[1] = 0;
-            player.linearVelocity[2] = 0;
+            player->linearVelocity[0] = 0;
+            player->linearVelocity[1] = 0;
+            player->linearVelocity[2] = 0;
 
     }
 }
@@ -132,50 +132,50 @@ void keyReleased(unsigned char key, int x, int y) {
     switch (key) {
         // Forward
         case 'i':
-            //player.linearThrust[2] = 0;
+            //player->linearThrust[2] = 0;
             //break;
         case 'k':
-            player.linearThrust[2] = 0;
+            player->linearThrust[2] = 0;
             break;
 
             // Sideways
         case 'j':
-            //player.linearThrust[0] = 0;
+            //player->linearThrust[0] = 0;
             //break;
         case 'l':
-            player.linearThrust[0] = 0;
+            player->linearThrust[0] = 0;
             break;
 
             // Up
         case 'u':
-            //player.linearThrust[1] = 0;
+            //player->linearThrust[1] = 0;
             //break;
         case 'o':
-            player.linearThrust[1] = 0;
+            player->linearThrust[1] = 0;
             break;
 
             // Yaw
         case 'q':
-            //player.angularThrust[1] = 0;
+            //player->angularThrust[1] = 0;
             //break;
         case 'e':
-            player.angularThrust[1] = 0;
+            player->angularThrust[1] = 0;
             break;
 
             // Roll
         case 'a':
-            //player.angularThrust[2] = 0;
+            //player->angularThrust[2] = 0;
             //break;
         case 'd':
-            player.angularThrust[2] = 0;
+            player->angularThrust[2] = 0;
             break;
 
             // Pitch
         case 'w':
-            //player.angularThrust[0] = 0;
+            //player->angularThrust[0] = 0;
             //break;
         case 's':
-            player.angularThrust[0] = 0;
+            player->angularThrust[0] = 0;
             break;
     }
 }
@@ -227,7 +227,7 @@ void mouseMotion(int x, int y) {
 }
 
 void applyPlayerMovement() {
-    // Translate according to player variables
+    // Translate according to player->variables
     float matrix[16];
 
     int accessorAdd = 0;
@@ -236,7 +236,7 @@ void applyPlayerMovement() {
             matrix[i] = 0;
             accessorAdd++;
         } else {
-            matrix[i] = player.basis.inverse()(i - accessorAdd);
+            matrix[i] = player->basis.inverse()(i - accessorAdd);
         }
         if (debug_output) std::cout << matrix[i] << std::endl;
     }
@@ -247,15 +247,15 @@ void applyPlayerMovement() {
 
     glMultMatrixf(matrix);
 
-    glTranslatef(-player.position[0], -player.position[1], -player.position[2]);
+    glTranslatef(-player->position[0], -player->position[1], -player->position[2]);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    // Greater FOV the faster the player moves
-    gluPerspective(60 + std::min(player.linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
+    // Greater FOV the faster the player->moves
+    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
 
     hour += inc;
@@ -263,7 +263,7 @@ void display() {
     hour = hour - ((int) (hour / 24)) * 24;
     day = day - ((int) (day / 365)) * 365;
 
-    // draw "cockpit" before applying playerMovement
+    // draw "cockpit" before applying player->ovement
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
@@ -381,6 +381,8 @@ void init() {
 }
 
 int main(int argc, char **argv) {
+    player->addChild(std::make_shared<CollidableObject>("player->ollider", 5.0));
+
     for (int i = 0; i < count_stars; i++) {
         stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
                                       (Random::ZeroToOne() - 0.5f) * 100.0f,

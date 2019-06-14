@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by karl on 13.06.19.
 //
@@ -6,16 +8,16 @@
 #define ASTEROID_COLLIDABLEOBJECT_H
 
 
-#include "Object.h"
-#include "Collidable.h"
+#include "SpatialObject.h"
 
-class CollidableObject : public Object, public Collidable {
+class CollidableObject : public Object {
 public:
-    CollidableObject(Eigen::Vector3d angularAccel, Eigen::Vector3d linearAccel, double radius) : Object(angularAccel,
-                                                                                                        linearAccel),
-                                                                                                 Collidable(radius) {};
+    CollidableObject(std::string name, double radius) : Object(name), radius(radius) {};
 
-    void update(float delta) override;
+    bool collidesWith(CollidableObject other);
+
+    Eigen::Vector3d origin;
+    double radius;
 };
 
 

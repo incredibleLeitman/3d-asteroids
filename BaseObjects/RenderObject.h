@@ -2,9 +2,9 @@
 #ifndef RENDER_OBJECT_H
 #define RENDER_OBJECT_H
 
-class RenderObject {
+class RenderObject : public Object {
 public:
-    RenderObject();
+    RenderObject(std::string name) : Object(name) {};
 
     void render();
 };
