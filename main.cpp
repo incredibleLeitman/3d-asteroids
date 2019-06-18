@@ -229,8 +229,38 @@ void mouseMotion(int x, int y) {
     }
 }
 
-void drawRect(float extentX, float extentY, float distZ, float topOffset) {
+void drawCockpit(float extentX, float extentY, float distZ, float topOffset, float topDistance) {
     glBegin(GL_QUADS);
+
+    // Top
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, topDistance, -extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, topDistance, -extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Back
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Bottom
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, -extentY, extentX);
 
     // Left
     glTexCoord2f(0, 0);
@@ -262,6 +292,7 @@ void drawRect(float extentX, float extentY, float distZ, float topOffset) {
     glTexCoord2f(0, 1);
     glVertex3f(extentX, extentY, extentX);
 
+
     glEnd();
 }
 
@@ -288,8 +319,8 @@ void display() {
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
     glPushMatrix();
-    glTranslatef(0.0, -1.0, 0.0);
-    drawRect(1.0, 0.5, -0.5, 0.4);
+    glTranslatef(0.0, -1.7, 0.0);
+    drawCockpit(1.5, 1.0, -0.5, 1.0, 2.5);
     glPopMatrix();
 
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
