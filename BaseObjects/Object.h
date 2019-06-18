@@ -5,7 +5,6 @@
 #ifndef ASTEROID_OBJECT_H
 #define ASTEROID_OBJECT_H
 
-
 #include <string>
 #include <map>
 #include <vector>

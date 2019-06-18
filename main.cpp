@@ -28,6 +28,8 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
+const int WORLD_SIZE = 1000;
+
 const GLuint ASTEROID_IMG_ID =  1;
 const GLuint EARTH_IMG_ID =     2;
 const GLuint COCKPIT_IMG_ID =   3;
@@ -43,11 +45,11 @@ GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
 
 // world objects
 ObjectSpawner *spawner = new ObjectSpawner();
-std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
 
 std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 //std::shared_ptr<KinematicObject> player;
 KinematicObject *player;
+std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
 
 void timer(int val) {
     glutPostRedisplay();
@@ -237,15 +239,11 @@ void display() {
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
 
+    // handle mouse movement
     gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
         0., 0., 0., 0., 1., 0.);
 
-    hour += inc;
-    day += inc / 24.0;
-    hour = hour - ((int) (hour / 24)) * 24;
-    day = day - ((int) (day / 365)) * 365;
-
-    // draw "cockpit" before applying player->ovement
+    // draw "cockpit" before applying player->movement
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -268,45 +266,43 @@ void display() {
     TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
     GLUquadric *sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
-    gluSphere(sphere, 1000, 500, 500);
+    gluSphere(sphere, WORLD_SIZE, 500, 500);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
 
-    // Stars
-    /*glColor3f(1.0, 1.0, 1.0);
-    for (int i = 0; i < count_stars; i++) {
-        glPushMatrix();
-        glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
-        glutSolidSphere(0.1, 15, 15);
-        glPopMatrix();
-    }*/
-
     //std::cout << "containing elements in root: " << std::endl;
-    glColor3f(1.0, 1.0, 1.0);
-    for (auto &object : root->getChildren())
+    /*for (auto &object : root->getChildren())
     {
         //std::cout << object->getName() << std::endl;
         for (auto &sub_object : object->getChildren())
         {
             //std::cout << "\t" << sub_object->getName() << " with type: " << typeid(*sub_object.get()).name() << std::endl;
-            if (typeid(*sub_object.get()) == typeid(RenderObject))
+            //if (std::is_base_of<SphereRenderObject, RenderObject>::value)
+            //if (typeid(*sub_object.get()) == typeid(RenderObject))
+            if (std::shared_ptr<SphereRenderObject> const obj = std::dynamic_pointer_cast<SphereRenderObject>(sub_object))
             {
-                // TODO: check color, img and stuff...
-                //std::dynamic_pointer_cast<RenderObject>(sub_object)->render();
-
-                glPushMatrix();
-                Eigen::Vector3d pos = object->getTransform().col(3).head<3>();
-                glTranslatef(pos.x(), pos.y(), pos.z());
-                glutSolidSphere(0.1, 15, 15);
-                glPopMatrix();
-
-
-                double val = pos.x();
+                //std::cout << "\t\tRendering derivedType" << std::endl;
+                obj->render();
+            }
+            else if (std::shared_ptr<RenderObject> const obj = std::dynamic_pointer_cast<RenderObject>(sub_object))
+            {
+                //std::cout << "\t\tRendering BaseType" << std::endl;
+                obj->render();
             }
         }
+    }*/
+
+    for (auto &object : renderObjects)
+    {
+        object->render();
     }
 
     // ecliptic
+    hour += inc;
+    day += inc / 24.0;
+    hour = hour - ((int)(hour / 24)) * 24;
+    day = day - ((int)(day / 365)) * 365;
+
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
@@ -374,44 +370,25 @@ void init() {
     TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
 
     // create objects
-    spawner->createSphere();
-    spawner->createCube();
-    // ...
-
-    // Generate some stars
+    //spawner->createCube();
     for (int i = 0; i < count_stars; i++) {
-        stars[i] = std::vector<float>{ (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                      (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                      (Random::ZeroToOne() - 0.5f) * 100.0f };
-    }
+        KinematicObject *star = spawner->createSphere("star", i, 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .15);
 
-    //// render the stars
-    //glColor3f(1.0, 1.0, 1.0);
-    //for (int i = 0; i < count_stars; i++) {
-    //    glPushMatrix();
-    //    glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
-    //    glutSolidSphere(0.1, 15, 15);
-    //    glPopMatrix();
-    //}
+        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(star->getChild(star->getName() + "Renderer"));
+        renderObjects.push_back(renderer);
 
-    for (int i = 0; i < count_stars; i++) {
-        //auto star = std::make_shared<KinematicObject>("Star" + std::to_string(i),
-        //std::shared_ptr<KinematicObject> star(new KinematicObject("Star" + std::to_string(i),
-        auto star = new KinematicObject("Star" + std::to_string(i),
-            Eigen::Vector3d{
-                (Random::ZeroToOne() - 0.5f) * 100.0f ,
-                (Random::ZeroToOne() - 0.5f) * 100.0f ,
-                (Random::ZeroToOne() - 0.5f) * 100.0f },
-            Eigen::Vector3d::Zero(),
-            Eigen::Vector3d::Zero());
-        std::cout << "created star: " << star->getName() << std::endl;
-
-        //auto render = std::make_shared<RenderObject>(star->getName());
-        //star->addChild(render);
-        star->addChild(std::make_shared<RenderObject>(star->getName() + "Renderer"));
-        
         std::shared_ptr<KinematicObject> star_shared(star);
         root->addChild(star_shared);
+    }
+
+    for (int i = 0; i < count_asteroids; i++) {
+        KinematicObject *asteroid = spawner->createSphere("asteroid", i, ASTEROID_IMG_ID, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .5);
+
+        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(asteroid->getChild(asteroid->getName() + "Renderer"));
+        renderObjects.push_back(renderer);
+
+        std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
+        root->addChild(asteroid_shared);
     }
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -424,6 +401,7 @@ void init() {
 
 int main(int argc, char **argv) {
     // Build the player object and its children
+    // LEM: no clue why make_shared crashes so badly for Win10 VS
     /*player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
                                                Eigen::Vector3d{2.0, 2.0, 2.0});*/

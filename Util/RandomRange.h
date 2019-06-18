@@ -17,6 +17,8 @@ public:
         return min + rand() % (max - min + 1);
     }
 
+    //TODO: static Vector3D
+
     static float ZeroToOne() {
         // seeding for the first time only!
         static bool init = false;

@@ -2,15 +2,17 @@
 #ifndef OBJECT_SPAWNER_H
 #define OBJECT_SPAWNER_H
 
+#include "BaseObjects/RenderObject.h"
+
 class ObjectSpawner {
 public:
     ObjectSpawner() = default;
 
     virtual ~ObjectSpawner() = default;
 
-    void createSphere();
+    KinematicObject * createSphere(std::string name, int index, GLuint texId, GLfloat r, GLfloat g, GLfloat b, GLdouble radius);
 
-    void createCube();
+    KinematicObject * createCube(std::string name, int index, GLuint texId, GLfloat r, GLfloat g, GLfloat b);
 };
 
 #endif // OBJECT_SPAWNER_H

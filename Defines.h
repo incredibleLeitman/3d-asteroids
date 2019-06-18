@@ -9,6 +9,7 @@
 #endif
 #define RAD(x) (((x)*M_PI)/180.)
 
-const int count_stars = 30;
+const int count_stars = 40;
+const int count_asteroids = 100;
 
 #endif // DEFINES_H_include

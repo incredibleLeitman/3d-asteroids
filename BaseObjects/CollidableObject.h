@@ -5,7 +5,6 @@
 #ifndef ASTEROID_COLLIDABLEOBJECT_H
 #define ASTEROID_COLLIDABLEOBJECT_H
 
-
 #include "KinematicObject.h"
 
 class CollidableObject : public Object {
