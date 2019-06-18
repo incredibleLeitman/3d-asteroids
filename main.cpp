@@ -229,6 +229,42 @@ void mouseMotion(int x, int y) {
     }
 }
 
+void drawRect(float extentX, float extentY, float distZ, float topOffset) {
+    glBegin(GL_QUADS);
+
+    // Left
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, extentX);
+
+    // Front
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+
+    // Right
+    glTexCoord2f(0, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(extentX, extentY, extentX);
+
+    glEnd();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -251,16 +287,10 @@ void display() {
     //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(-1.75f, -1.0f, -1.0f);
-    glTexCoord2f(1, 0);
-    glVertex3f(1.75f, -1.0f, -1.0f);
-    glTexCoord2f(1, 1);
-    glVertex3f(1.75f, -0.5f, -1.0f);
-    glTexCoord2f(0, 1);
-    glVertex3f(-1.75f, -0.5f, -1.0f);
-    glEnd();
+    glPushMatrix();
+    glTranslatef(0.0, -1.0, 0.0);
+    drawRect(1.0, 0.5, -0.5, 0.4);
+    glPopMatrix();
 
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
