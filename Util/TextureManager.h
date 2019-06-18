@@ -3,7 +3,7 @@
 #define TEXTURE_MANAGER_H
 
 #ifdef WIN32
-#include <windows.h>
+    #include <windows.h>
 #endif
 
 #include <GL/glut.h>

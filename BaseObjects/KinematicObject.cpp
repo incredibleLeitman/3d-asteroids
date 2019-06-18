@@ -8,7 +8,6 @@
 #include <utility>
 #include <iostream>
 
-#include "../Defines.h"
 #include "KinematicObject.h"
 
 void KinematicObject::update(float delta) {

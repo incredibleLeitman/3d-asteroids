@@ -1,3 +1,7 @@
+#ifdef WIN32
+    #define NOMINMAX // needed for windows to use std::min
+#endif
+
 #include <stdlib.h> // for exit
 //#include <unistd.h> // for usleep
 #include <iostream>
@@ -27,12 +31,15 @@ const GLuint ASTEROID_IMG_ID = 1;
 const GLuint EARTH_IMG_ID = 2;
 const GLuint COCKPIT_IMG_ID = 3;
 const GLuint SUN_IMG_ID = 4;
+const GLuint UNIVERSE_IMG_ID = 5;
 
 const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
 
+//Object *root = new Object("Root");
 std::shared_ptr<Object> root = std::make_shared<Object>("Root");
-std::shared_ptr<KinematicObject> player;
+//std::shared_ptr<KinematicObject> player;
+KinematicObject *player;
 
 ObjectSpawner spawner = ObjectSpawner();
 
@@ -126,57 +133,44 @@ void keyPressed(unsigned char key, int x, int y) {
             player->linearVelocity[0] = 0;
             player->linearVelocity[1] = 0;
             player->linearVelocity[2] = 0;
-
+            break;
     }
 }
 
 void keyReleased(unsigned char key, int x, int y) {
-    // LEM: TODO: ask @KB: fallthrough ugly?
     switch (key) {
         // Forward
         case 'i':
-            //player->linearThrust[2] = 0;
-            //break;
         case 'k':
             player->linearThrust[2] = 0;
             break;
 
             // Sideways
         case 'j':
-            //player->linearThrust[0] = 0;
-            //break;
         case 'l':
             player->linearThrust[0] = 0;
             break;
 
             // Up
         case 'u':
-            //player->linearThrust[1] = 0;
-            //break;
         case 'o':
             player->linearThrust[1] = 0;
             break;
 
             // Yaw
         case 'q':
-            //player->angularThrust[1] = 0;
-            //break;
         case 'e':
             player->angularThrust[1] = 0;
             break;
 
             // Roll
         case 'a':
-            //player->angularThrust[2] = 0;
-            //break;
         case 'd':
             player->angularThrust[2] = 0;
             break;
 
             // Pitch
         case 'w':
-            //player->angularThrust[0] = 0;
-            //break;
         case 's':
             player->angularThrust[0] = 0;
             break;
@@ -245,6 +239,7 @@ void display() {
     // draw "cockpit" before applying player->ovement
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
     glBegin(GL_QUADS);
@@ -257,12 +252,18 @@ void display() {
     glTexCoord2f(0, 1);
     glVertex3f(-1.75f, -0.5f, -1.0f);
     glEnd();
-    glDisable(GL_TEXTURE_2D);
 
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
-    // Stars
+    // universe - the one above all...
+    TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
+    GLUquadric *sphere = gluNewQuadric();
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluSphere(sphere, 1000, 500, 500);
+    glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
+
+    // Stars    
     glColor3f(1.0, 1.0, 1.0);
     for (int i = 0; i < count_stars; i++) {
         glPushMatrix();
@@ -270,23 +271,16 @@ void display() {
         glutSolidSphere(0.1, 15, 15);
         glPopMatrix();
     }
-    glEnable(GL_LIGHTING);
-
-    glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
 
     // ecliptic
+    glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
-    // set textures
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
     // sun
-    glDisable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 0.0);
-    //glutSolidSphere(1.0, 15, 15);
     TextureManager::Inst()->bindTexture(SUN_IMG_ID);
-    GLUquadric *sphere = gluNewQuadric();
+    sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 1, 36, 72);
     glEnable(GL_LIGHTING);
@@ -300,7 +294,6 @@ void display() {
     // rotate the earth on its axis
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
     glColor3f(1.0, 1.0, 1.0);
-    //glutSolidSphere(0.4, 10, 10);
     TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
     sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
@@ -310,15 +303,14 @@ void display() {
     // moon
     glRotatef(360.0 * 4 * day / 365.0, 0.0, 1.0, 0.0);
     glTranslatef(0.7f, 0.0f, 0.0f);
-    //glColor3f(0.3f, 0.7f, 0.3f);
     glColor3f(1, 1, 1);
-    //glutSolidSphere(0.1f, 10, 10);
     TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
     sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 0.1, 36, 72);
 
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 
     glutSwapBuffers();
 }
@@ -345,6 +337,7 @@ void init() {
     TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
 
     // create objects
     spawner.createSphere();
@@ -361,14 +354,19 @@ void init() {
 
 int main(int argc, char **argv) {
     // Build the player object and its children
-    player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
+    /*player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
-                                               Eigen::Vector3d{2.0, 2.0, 2.0});
+                                               Eigen::Vector3d{2.0, 2.0, 2.0});*/
+    player = new KinematicObject("Player",
+                                 Eigen::Vector3d{ 0.0, 0.0, 8.0 },
+                                 Eigen::Vector3d{ 25.0, 25.0, 25.0 },
+                                 Eigen::Vector3d{ 2.0, 2.0, 2.0 });
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
     // Add the player to the root node
-    root->addChild(player);
+    std::shared_ptr<KinematicObject> sharedPlayer(player);
+    root->addChild(sharedPlayer);
 
     // Generate some stars
     for (int i = 0; i < count_stars; i++) {
@@ -376,7 +374,6 @@ int main(int argc, char **argv) {
                                       (Random::ZeroToOne() - 0.5f) * 100.0f,
                                       (Random::ZeroToOne() - 0.5f) * 100.0f};
     }
-
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);

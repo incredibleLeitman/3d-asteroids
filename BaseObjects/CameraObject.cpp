@@ -2,8 +2,9 @@
 // Created by karl on 14.06.19.
 //
 
-#include <GL/gl.h>
 #include <iostream>
+#include <GL/glut.h>
+
 #include "CameraObject.h"
 
 void CameraObject::setCamera() {
