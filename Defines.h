@@ -4,4 +4,11 @@
 
 #define DEBUG_OUTPUT true
 
+#ifndef M_PI
+    #define M_PI 3.141592653
+#endif
+#define RAD(x) (((x)*M_PI)/180.)
+
+const int count_stars = 30;
+
 #endif // DEFINES_H_include

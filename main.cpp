@@ -10,38 +10,44 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "BaseObjects/CameraObject.h"
 #include "BaseObjects/CollidableObject.h"
-#include "Defines.h"
 #include "BaseObjects/KinematicObject.h"
+#include "BaseObjects/RenderObject.h"
+#include "Defines.h"
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
 #include "Util/TextureManager.h"
-#include "BaseObjects/CameraObject.h"
 
 int window;
 
-int width;
-int height;
+int width = 1920;
+int height = 1080;
 
 float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-const GLuint ASTEROID_IMG_ID = 1;
-const GLuint EARTH_IMG_ID = 2;
-const GLuint COCKPIT_IMG_ID = 3;
-const GLuint SUN_IMG_ID = 4;
-const GLuint UNIVERSE_IMG_ID = 5;
+const GLuint ASTEROID_IMG_ID =  1;
+const GLuint EARTH_IMG_ID =     2;
+const GLuint COCKPIT_IMG_ID =   3;
+const GLuint SUN_IMG_ID =       4;
+const GLuint UNIVERSE_IMG_ID =  5;
 
-const int count_stars = 30; // LEM: TODO: ask @KB: define global variable oder #define?
+// player looking direction
+int moving = 0;         // flag that is true while mouse moves
+int begin_x = 0;        // x value of mouse movement
+int begin_y = 0;        // y value of mouse movement
+GLfloat angle_y = 0;    // angle of spin around y axis of scene, in degrees
+GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
+
+// world objects
+ObjectSpawner *spawner = new ObjectSpawner();
 std::vector<std::vector<float>> stars = std::vector<std::vector<float>>(count_stars);
 
-//Object *root = new Object("Root");
 std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 //std::shared_ptr<KinematicObject> player;
 KinematicObject *player;
-
-ObjectSpawner spawner = ObjectSpawner();
 
 void timer(int val) {
     glutPostRedisplay();
@@ -190,7 +196,7 @@ static void specialKeyPressed(int key, int x, int y) {
 
 void mouseButton(int button, int state, int x, int y) {
     // mouse Example code
-    /*switch (button) {
+    switch (button) {
     case GLUT_LEFT_BUTTON:
         if (state == GLUT_DOWN) {
             moving = 1;
@@ -205,12 +211,12 @@ void mouseButton(int button, int state, int x, int y) {
 
     default:
         break;
-    }*/
+    }
 }
 
 void mouseMotion(int x, int y) {
     // mouse Example code
-    /*if (moving) {
+    if (moving) {
         angle_y = angle_y + (x - begin_x);
         angle_x = angle_x + (y - begin_y);
         if (angle_x > 360.0) angle_x -= 360.0;
@@ -220,7 +226,7 @@ void mouseMotion(int x, int y) {
 
         begin_x = x;
         begin_y = y;
-    }*/
+    }
 }
 
 void display() {
@@ -230,6 +236,9 @@ void display() {
     // Greater FOV the faster the player->moves
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
+
+    gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
+        0., 0., 0., 0., 1., 0.);
 
     hour += inc;
     day += inc / 24.0;
@@ -263,13 +272,38 @@ void display() {
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
 
-    // Stars    
-    glColor3f(1.0, 1.0, 1.0);
+    // Stars
+    /*glColor3f(1.0, 1.0, 1.0);
     for (int i = 0; i < count_stars; i++) {
         glPushMatrix();
         glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
         glutSolidSphere(0.1, 15, 15);
         glPopMatrix();
+    }*/
+
+    //std::cout << "containing elements in root: " << std::endl;
+    glColor3f(1.0, 1.0, 1.0);
+    for (auto &object : root->getChildren())
+    {
+        //std::cout << object->getName() << std::endl;
+        for (auto &sub_object : object->getChildren())
+        {
+            //std::cout << "\t" << sub_object->getName() << " with type: " << typeid(*sub_object.get()).name() << std::endl;
+            if (typeid(*sub_object.get()) == typeid(RenderObject))
+            {
+                // TODO: check color, img and stuff...
+                //std::dynamic_pointer_cast<RenderObject>(sub_object)->render();
+
+                glPushMatrix();
+                Eigen::Vector3d pos = object->getTransform().col(3).head<3>();
+                glTranslatef(pos.x(), pos.y(), pos.z());
+                glutSolidSphere(0.1, 15, 15);
+                glPopMatrix();
+
+
+                double val = pos.x();
+            }
+        }
     }
 
     // ecliptic
@@ -340,16 +374,52 @@ void init() {
     TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
 
     // create objects
-    spawner.createSphere();
-    spawner.createCube();
+    spawner->createSphere();
+    spawner->createCube();
     // ...
+
+    // Generate some stars
+    for (int i = 0; i < count_stars; i++) {
+        stars[i] = std::vector<float>{ (Random::ZeroToOne() - 0.5f) * 100.0f,
+                                      (Random::ZeroToOne() - 0.5f) * 100.0f,
+                                      (Random::ZeroToOne() - 0.5f) * 100.0f };
+    }
+
+    //// render the stars
+    //glColor3f(1.0, 1.0, 1.0);
+    //for (int i = 0; i < count_stars; i++) {
+    //    glPushMatrix();
+    //    glTranslatef(stars[i][0], stars[i][1], stars[i][2]);
+    //    glutSolidSphere(0.1, 15, 15);
+    //    glPopMatrix();
+    //}
+
+    for (int i = 0; i < count_stars; i++) {
+        //auto star = std::make_shared<KinematicObject>("Star" + std::to_string(i),
+        //std::shared_ptr<KinematicObject> star(new KinematicObject("Star" + std::to_string(i),
+        auto star = new KinematicObject("Star" + std::to_string(i),
+            Eigen::Vector3d{
+                (Random::ZeroToOne() - 0.5f) * 100.0f ,
+                (Random::ZeroToOne() - 0.5f) * 100.0f ,
+                (Random::ZeroToOne() - 0.5f) * 100.0f },
+            Eigen::Vector3d::Zero(),
+            Eigen::Vector3d::Zero());
+        std::cout << "created star: " << star->getName() << std::endl;
+
+        //auto render = std::make_shared<RenderObject>(star->getName());
+        //star->addChild(render);
+        star->addChild(std::make_shared<RenderObject>(star->getName() + "Renderer"));
+        
+        std::shared_ptr<KinematicObject> star_shared(star);
+        root->addChild(star_shared);
+    }
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
     glDepthFunc(GL_LESS);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
-    resize(width, height);
+    //resize(width, height); // LEM: should not be needed
 }
 
 int main(int argc, char **argv) {
@@ -358,9 +428,9 @@ int main(int argc, char **argv) {
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
                                                Eigen::Vector3d{2.0, 2.0, 2.0});*/
     player = new KinematicObject("Player",
-                                 Eigen::Vector3d{ 0.0, 0.0, 8.0 },
-                                 Eigen::Vector3d{ 25.0, 25.0, 25.0 },
-                                 Eigen::Vector3d{ 2.0, 2.0, 2.0 });
+        Eigen::Vector3d{ 0.0, 0.0, 8.0 },
+        Eigen::Vector3d{ 25.0, 25.0, 25.0 },
+        Eigen::Vector3d{ 2.0, 2.0, 2.0 });
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
@@ -368,31 +438,19 @@ int main(int argc, char **argv) {
     std::shared_ptr<KinematicObject> sharedPlayer(player);
     root->addChild(sharedPlayer);
 
-    // Generate some stars
-    for (int i = 0; i < count_stars; i++) {
-        stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
-                                      (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                      (Random::ZeroToOne() - 0.5f) * 100.0f};
-    }
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);
-    glutInitWindowSize(1920, 1080);
+    glutInitWindowSize(width, height);
     glutInitWindowPosition(0, 0);
     window = glutCreateWindow("3D Asteroids");
     glutDisplayFunc(&display);
-
     glutTimerFunc(1000 / 60.0, &timer, 1);
-
     glutReshapeFunc(&resize);
     glutKeyboardFunc(&keyPressed);
     glutKeyboardUpFunc(&keyReleased);
     glutSpecialFunc(&specialKeyPressed);
     glutMouseFunc(&mouseButton);
     glutMotionFunc(&mouseMotion);
-
-    width = 1920;
-    height = 1080;
 
     init();
     glutMainLoop();

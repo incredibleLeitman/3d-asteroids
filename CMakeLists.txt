@@ -10,21 +10,23 @@ include_directories(${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIRS})
 
 add_executable(asteroid
         main.cpp
-        BaseObjects/KinematicObject.cpp
-        BaseObjects/KinematicObject.h
-        Util/tga.h
-        Util/tga.cpp
-        Defines.h
-        Util/RandomRange.h
-        Util/TextureManager.h
-        Util/TextureManager.cpp
-        BaseObjects/CollidableObject.cpp
-        BaseObjects/CollidableObject.h
-        ObjectSpawner.h
-        ObjectSpawner.cpp
         BaseObjects/Object.cpp
         BaseObjects/Object.h
         BaseObjects/CameraObject.cpp
-        BaseObjects/CameraObject.h)
+        BaseObjects/CameraObject.h
+        BaseObjects/CollidableObject.cpp
+        BaseObjects/CollidableObject.h
+        BaseObjects/KinematicObject.cpp
+        BaseObjects/KinematicObject.h
+        BaseObjects/RenderObject.cpp
+        BaseObjects/RenderObject.h
+        Defines.h
+        Util/tga.h
+        Util/tga.cpp
+        Util/RandomRange.h
+        Util/TextureManager.h
+        Util/TextureManager.cpp
+        ObjectSpawner.h
+        ObjectSpawner.cpp)
 
 target_link_libraries(asteroid ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})

@@ -8,6 +8,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <memory>
 #include "../Eigen/Geometry"
 
@@ -25,10 +26,13 @@ public:
     std::shared_ptr<Object> getParent();
 
     std::shared_ptr<Object> getChild(std::string name);
+    std::vector<std::shared_ptr<Object>> getChildren();
 
     void addChild(std::shared_ptr<Object> child);
 
     Eigen::Matrix4d getTransform();
+
+    std::string getName();
 
 protected:
     std::map<std::string, std::shared_ptr<Object>> children;

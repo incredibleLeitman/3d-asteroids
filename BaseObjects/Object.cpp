@@ -12,6 +12,12 @@ std::shared_ptr<Object> Object::getChild(std::string name) {
     return children[name];
 }
 
+std::vector<std::shared_ptr<Object>> Object::getChildren() {
+    std::vector<std::shared_ptr<Object>> v_children;
+    std::transform(children.begin(), children.end(), std::back_inserter(v_children), [](const std::map<std::string, std::shared_ptr<Object>>::value_type& val) {return val.second; });
+    return v_children;
+}
+
 void Object::addChild(std::shared_ptr<Object> child) {
     children[child->name] = child;
 
@@ -24,4 +30,8 @@ Eigen::Matrix4d Object::getTransform() {
     } else {
         return transform * getParent()->getTransform();
     }
+}
+
+std::string Object::getName() {
+    return name;
 }
