@@ -15,9 +15,9 @@
 class Object {
 
 public:
-    Object(std::string name) : name(std::move(name)) {};
+    explicit Object(std::string name) : name(std::move(name)) {};
 
-    Object(std::string name, Eigen::Vector3d startPosition) : name(std::move(name)) {
+    Object(std::string name, const Eigen::Vector3d& startPosition) : name(std::move(name)) {
         transform.col(3).head<3>() = startPosition;
     };
 
@@ -25,10 +25,10 @@ public:
 
     std::shared_ptr<Object> getParent();
 
-    std::shared_ptr<Object> getChild(std::string name);
+    std::shared_ptr<Object> getChild(const std::string& child_name);
     std::vector<std::shared_ptr<Object>> getChildren();
 
-    void addChild(std::shared_ptr<Object> child);
+    void addChild(const std::shared_ptr<Object>& child);
 
     Eigen::Matrix4d getTransform();
 

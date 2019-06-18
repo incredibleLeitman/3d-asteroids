@@ -51,15 +51,15 @@ KinematicObject *player;
 
 void timer(int val) {
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60.0, &timer, 1);
+    glutTimerFunc(1000 / 60, &timer, 1);
     player->update(1 / 60.0);
 }
 
-void resize(int width, int height) {
+void resize(int new_width, int new_height) {
     // prevent division by zero
     if (height == 0) { height = 1; }
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, new_width, new_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
@@ -233,7 +233,7 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    // Greater FOV the faster the player->moves
+    // Greater FOV the faster the player moves
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
 
