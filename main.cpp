@@ -1,5 +1,5 @@
 #ifdef WIN32
-    #define NOMINMAX // needed for windows to use std::min
+#define NOMINMAX // needed for windows to use std::min
 #endif
 
 #include <stdlib.h> // for exit
@@ -28,11 +28,11 @@ float hour = 0.0;
 float day = 0.0;
 float inc = 1.00;
 
-const GLuint ASTEROID_IMG_ID =  1;
-const GLuint EARTH_IMG_ID =     2;
-const GLuint COCKPIT_IMG_ID =   3;
-const GLuint SUN_IMG_ID =       4;
-const GLuint UNIVERSE_IMG_ID =  5;
+const GLuint ASTEROID_IMG_ID = 1;
+const GLuint EARTH_IMG_ID = 2;
+const GLuint COCKPIT_IMG_ID = 3;
+const GLuint SUN_IMG_ID = 4;
+const GLuint UNIVERSE_IMG_ID = 5;
 
 // player looking direction
 int moving = 0;         // flag that is true while mouse moves
@@ -40,6 +40,8 @@ int begin_x = 0;        // x value of mouse movement
 int begin_y = 0;        // y value of mouse movement
 GLfloat angle_y = 0;    // angle of spin around y axis of scene, in degrees
 GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
+
+float mouse_speed = 0.2;
 
 // world objects
 ObjectSpawner *spawner = new ObjectSpawner();
@@ -197,32 +199,40 @@ static void specialKeyPressed(int key, int x, int y) {
 void mouseButton(int button, int state, int x, int y) {
     // mouse Example code
     switch (button) {
-    case GLUT_LEFT_BUTTON:
-        if (state == GLUT_DOWN) {
-            moving = 1;
-            begin_x = x;
-            begin_y = y;
+        case GLUT_LEFT_BUTTON:
+            if (state == GLUT_DOWN) {
+                moving = 1;
+                begin_x = x;
+                begin_y = y;
 
-        }
-        else if (state == GLUT_UP) {
-            moving = 0;
-        }
-        break;
+            } else if (state == GLUT_UP) {
+                moving = 0;
+            }
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
 void mouseMotion(int x, int y) {
-    // mouse Example code
     if (moving) {
-        angle_y = angle_y + (x - begin_x);
-        angle_x = angle_x + (y - begin_y);
-        if (angle_x > 360.0) angle_x -= 360.0;
-        else if (angle_x < -360.0) angle_x += 360.0;
-        if (angle_y > 360.0) angle_y -= 360.0;
-        else if (angle_y < -360.0) angle_y += 360.0;
+        angle_y = angle_y + (x - begin_x) * mouse_speed;
+        angle_x = angle_x + (y - begin_y) * mouse_speed;
+
+        // Clamp angle_x so the view stops rotating at almost straight down / up
+        if (angle_x > 70.0) {
+            angle_x = 70.0;
+        } else if (angle_x < -70.0) {
+            angle_x = -70.0;
+        }
+
+        // Make angle_y stay between -360 and 360
+        if (angle_y > 360.0) {
+            angle_y -= 360.0;
+        } else if (angle_y < -360.0) {
+            angle_y += 360.0;
+        }
 
         begin_x = x;
         begin_y = y;
@@ -304,8 +314,8 @@ void display() {
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
 
-    gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
-        0., 0., 0., 0., 1., 0.);
+    glRotatef(angle_x, 1.0, 0.0, 0.0);
+    glRotatef(angle_y, 0.0, 1.0, 0.0);
 
     hour += inc;
     day += inc / 24.0;
@@ -344,14 +354,11 @@ void display() {
 
     //std::cout << "containing elements in root: " << std::endl;
     glColor3f(1.0, 1.0, 1.0);
-    for (auto &object : root->getChildren())
-    {
+    for (auto &object : root->getChildren()) {
         //std::cout << object->getName() << std::endl;
-        for (auto &sub_object : object->getChildren())
-        {
+        for (auto &sub_object : object->getChildren()) {
             //std::cout << "\t" << sub_object->getName() << " with type: " << typeid(*sub_object.get()).name() << std::endl;
-            if (typeid(*sub_object.get()) == typeid(RenderObject))
-            {
+            if (typeid(*sub_object.get()) == typeid(RenderObject)) {
                 // TODO: check color, img and stuff...
                 //std::dynamic_pointer_cast<RenderObject>(sub_object)->render();
 
@@ -441,9 +448,9 @@ void init() {
 
     // Generate some stars
     for (int i = 0; i < count_stars; i++) {
-        stars[i] = std::vector<float>{ (Random::ZeroToOne() - 0.5f) * 100.0f,
+        stars[i] = std::vector<float>{(Random::ZeroToOne() - 0.5f) * 100.0f,
                                       (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                      (Random::ZeroToOne() - 0.5f) * 100.0f };
+                                      (Random::ZeroToOne() - 0.5f) * 100.0f};
     }
 
     //// render the stars
@@ -459,18 +466,18 @@ void init() {
         //auto star = std::make_shared<KinematicObject>("Star" + std::to_string(i),
         //std::shared_ptr<KinematicObject> star(new KinematicObject("Star" + std::to_string(i),
         auto star = new KinematicObject("Star" + std::to_string(i),
-            Eigen::Vector3d{
-                (Random::ZeroToOne() - 0.5f) * 100.0f ,
-                (Random::ZeroToOne() - 0.5f) * 100.0f ,
-                (Random::ZeroToOne() - 0.5f) * 100.0f },
-            Eigen::Vector3d::Zero(),
-            Eigen::Vector3d::Zero());
+                                        Eigen::Vector3d{
+                                                (Random::ZeroToOne() - 0.5f) * 100.0f,
+                                                (Random::ZeroToOne() - 0.5f) * 100.0f,
+                                                (Random::ZeroToOne() - 0.5f) * 100.0f},
+                                        Eigen::Vector3d::Zero(),
+                                        Eigen::Vector3d::Zero());
         std::cout << "created star: " << star->getName() << std::endl;
 
         //auto render = std::make_shared<RenderObject>(star->getName());
         //star->addChild(render);
         star->addChild(std::make_shared<RenderObject>(star->getName() + "Renderer"));
-        
+
         std::shared_ptr<KinematicObject> star_shared(star);
         root->addChild(star_shared);
     }
@@ -489,9 +496,9 @@ int main(int argc, char **argv) {
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
                                                Eigen::Vector3d{2.0, 2.0, 2.0});*/
     player = new KinematicObject("Player",
-        Eigen::Vector3d{ 0.0, 0.0, 8.0 },
-        Eigen::Vector3d{ 25.0, 25.0, 25.0 },
-        Eigen::Vector3d{ 2.0, 2.0, 2.0 });
+                                 Eigen::Vector3d{0.0, 0.0, 8.0},
+                                 Eigen::Vector3d{25.0, 25.0, 25.0},
+                                 Eigen::Vector3d{2.0, 2.0, 2.0});
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
