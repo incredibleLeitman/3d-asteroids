@@ -1,5 +1,5 @@
 #ifdef WIN32
-    #define NOMINMAX // needed for windows to use std::min
+#define NOMINMAX // needed for windows to use std::min
 #endif
 
 #include <stdlib.h> // for exit
@@ -43,6 +43,8 @@ int begin_y = 0;        // y value of mouse movement
 GLfloat angle_y = 0;    // angle of spin around y axis of scene, in degrees
 GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
 
+float mouse_speed = 0.2;
+
 // world objects
 ObjectSpawner *spawner = new ObjectSpawner();
 
@@ -53,15 +55,15 @@ std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shar
 
 void timer(int val) {
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60.0, &timer, 1);
+    glutTimerFunc(1000 / 60, &timer, 1);
     player->update(1 / 60.0);
 }
 
-void resize(int width, int height) {
+void resize(int new_width, int new_height) {
     // prevent division by zero
     if (height == 0) { height = 1; }
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, new_width, new_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
@@ -199,49 +201,126 @@ static void specialKeyPressed(int key, int x, int y) {
 void mouseButton(int button, int state, int x, int y) {
     // mouse Example code
     switch (button) {
-    case GLUT_LEFT_BUTTON:
-        if (state == GLUT_DOWN) {
-            moving = 1;
-            begin_x = x;
-            begin_y = y;
+        case GLUT_LEFT_BUTTON:
+            if (state == GLUT_DOWN) {
+                moving = 1;
+                begin_x = x;
+                begin_y = y;
 
-        }
-        else if (state == GLUT_UP) {
-            moving = 0;
-        }
-        break;
+            } else if (state == GLUT_UP) {
+                moving = 0;
+            }
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
 void mouseMotion(int x, int y) {
-    // mouse Example code
     if (moving) {
-        angle_y = angle_y + (x - begin_x);
-        angle_x = angle_x + (y - begin_y);
-        if (angle_x > 360.0) angle_x -= 360.0;
-        else if (angle_x < -360.0) angle_x += 360.0;
-        if (angle_y > 360.0) angle_y -= 360.0;
-        else if (angle_y < -360.0) angle_y += 360.0;
+        angle_y = angle_y + (x - begin_x) * mouse_speed;
+        angle_x = angle_x + (y - begin_y) * mouse_speed;
+
+        // Clamp angle_x so the view stops rotating at almost straight down / up
+        if (angle_x > 70.0) {
+            angle_x = 70.0;
+        } else if (angle_x < -70.0) {
+            angle_x = -70.0;
+        }
+
+        // Make angle_y stay between -360 and 360
+        if (angle_y > 360.0) {
+            angle_y -= 360.0;
+        } else if (angle_y < -360.0) {
+            angle_y += 360.0;
+        }
 
         begin_x = x;
         begin_y = y;
     }
 }
 
+void drawCockpit(float extentX, float extentY, float distZ, float topOffset, float topDistance) {
+    glBegin(GL_QUADS);
+
+    // Top
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, topDistance, -extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, topDistance, -extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Back
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Bottom
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, -extentY, extentX);
+
+    // Left
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, extentX);
+
+    // Front
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+
+    // Right
+    glTexCoord2f(0, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(extentX, extentY, extentX);
+
+
+    glEnd();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    // Greater FOV the faster the player->moves
+    // Greater FOV the faster the player moves
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
                    10000.0f);
 
     // handle mouse movement
     gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
         0., 0., 0., 0., 1., 0.);
+    glRotatef(angle_x, 1.0, 0.0, 0.0);
+    glRotatef(angle_y, 0.0, 1.0, 0.0);
 
     // draw "cockpit" before applying player->movement
     glEnable(GL_TEXTURE_2D);
@@ -249,16 +328,10 @@ void display() {
     //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(-1.75f, -1.0f, -1.0f);
-    glTexCoord2f(1, 0);
-    glVertex3f(1.75f, -1.0f, -1.0f);
-    glTexCoord2f(1, 1);
-    glVertex3f(1.75f, -0.5f, -1.0f);
-    glTexCoord2f(0, 1);
-    glVertex3f(-1.75f, -0.5f, -1.0f);
-    glEnd();
+    glPushMatrix();
+    glTranslatef(0.0, -1.7, 0.0);
+    drawCockpit(1.5, 1.0, -0.5, 1.0, 2.5);
+    glPopMatrix();
 
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
@@ -269,28 +342,6 @@ void display() {
     gluSphere(sphere, WORLD_SIZE, 500, 500);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
-
-    //std::cout << "containing elements in root: " << std::endl;
-    /*for (auto &object : root->getChildren())
-    {
-        //std::cout << object->getName() << std::endl;
-        for (auto &sub_object : object->getChildren())
-        {
-            //std::cout << "\t" << sub_object->getName() << " with type: " << typeid(*sub_object.get()).name() << std::endl;
-            //if (std::is_base_of<SphereRenderObject, RenderObject>::value)
-            //if (typeid(*sub_object.get()) == typeid(RenderObject))
-            if (std::shared_ptr<SphereRenderObject> const obj = std::dynamic_pointer_cast<SphereRenderObject>(sub_object))
-            {
-                //std::cout << "\t\tRendering derivedType" << std::endl;
-                obj->render();
-            }
-            else if (std::shared_ptr<RenderObject> const obj = std::dynamic_pointer_cast<RenderObject>(sub_object))
-            {
-                //std::cout << "\t\tRendering BaseType" << std::endl;
-                obj->render();
-            }
-        }
-    }*/
 
     for (auto &object : renderObjects)
     {
@@ -406,9 +457,9 @@ int main(int argc, char **argv) {
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
                                                Eigen::Vector3d{2.0, 2.0, 2.0});*/
     player = new KinematicObject("Player",
-        Eigen::Vector3d{ 0.0, 0.0, 8.0 },
-        Eigen::Vector3d{ 25.0, 25.0, 25.0 },
-        Eigen::Vector3d{ 2.0, 2.0, 2.0 });
+                                 Eigen::Vector3d{0.0, 0.0, 8.0},
+                                 Eigen::Vector3d{25.0, 25.0, 25.0},
+                                 Eigen::Vector3d{2.0, 2.0, 2.0});
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 

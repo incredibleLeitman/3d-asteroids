@@ -9,13 +9,17 @@
 
 class CollidableObject : public Object {
 public:
-    CollidableObject(std::string name, double radius) : Object(name), radius(radius) {};
+    CollidableObject(std::string name, double radius) : Object(std::move(name)), radius(radius) {};
 
-    bool collidesWith(CollidableObject other);
+    bool collidesWith(const std::shared_ptr<CollidableObject>& other);
+
+    const Eigen::Vector3d &getOrigin() const;
+
+    double getRadius() const;
 
 private:
-    Eigen::Vector3d origin;
     double radius;
+    Eigen::Vector3d origin;
 };
 
 
