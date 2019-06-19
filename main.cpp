@@ -21,20 +21,9 @@
 
 int window;
 
-int width = 1920;
-int height = 1080;
-
+float step = 0.0;
 float hour = 0.0;
 float day = 0.0;
-float inc = 1.00;
-
-const int WORLD_SIZE = 1000;
-
-const GLuint ASTEROID_IMG_ID =  1;
-const GLuint EARTH_IMG_ID =     2;
-const GLuint COCKPIT_IMG_ID =   3;
-const GLuint SUN_IMG_ID =       4;
-const GLuint UNIVERSE_IMG_ID =  5;
 
 // player looking direction
 int moving = 0;         // flag that is true while mouse moves
@@ -42,8 +31,6 @@ int begin_x = 0;        // x value of mouse movement
 int begin_y = 0;        // y value of mouse movement
 GLfloat angle_y = 0;    // angle of spin around y axis of scene, in degrees
 GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
-
-float mouse_speed = 0.2;
 
 // world objects
 ObjectSpawner *spawner = new ObjectSpawner();
@@ -59,15 +46,15 @@ void timer(int val) {
     player->update(1 / 60.0);
 }
 
-void resize(int new_width, int new_height) {
-    // prevent division by zero
-    if (height == 0) { height = 1; }
-
-    glViewport(0, 0, new_width, new_height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-}
+//void resize(int width, int height) {
+//    // prevent division by zero
+//    if (height == 0) { height = 1; }
+//
+//    glViewport(0, 0, width, height);
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
+//    glMatrixMode(GL_MODELVIEW);
+//}
 
 void keyPressed(unsigned char key, int x, int y) {
     // Esc is exit
@@ -188,6 +175,7 @@ void keyReleased(unsigned char key, int x, int y) {
 }
 
 static void specialKeyPressed(int key, int x, int y) {
+    // speed everything up a little...
     switch (key) {
         case GLUT_KEY_UP:
             inc *= 1.5;
@@ -324,8 +312,8 @@ void display() {
 
     // draw "cockpit" before applying player->movement
     glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
 
     glPushMatrix();
@@ -343,17 +331,19 @@ void display() {
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
 
-    for (auto &object : renderObjects)
-    {
-        object->render();
-    }
-
-    // ecliptic
+    step += inc; // % FLT_MAX; ?
     hour += inc;
     day += inc / 24.0;
     hour = hour - ((int)(hour / 24)) * 24;
     day = day - ((int)(day / 365)) * 365;
 
+    // render all RenderObjects
+    for (auto &object : renderObjects)
+    {
+        object->render(step);
+    }
+
+    // ecliptic
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
@@ -384,6 +374,8 @@ void display() {
     // moon
     glRotatef(360.0 * 4 * day / 365.0, 0.0, 1.0, 0.0);
     glTranslatef(0.7f, 0.0f, 0.0f);
+    // rotate the moon also on its axis
+    glRotatef(-360.0 * hour / 48.0, 0.0, 1.0, 0.0);
     glColor3f(1, 1, 1);
     TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
     sphere = gluNewQuadric();
@@ -423,7 +415,7 @@ void init() {
     // create objects
     //spawner->createCube();
     for (int i = 0; i < count_stars; i++) {
-        KinematicObject *star = spawner->createSphere("star", i, 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .15);
+        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .1f, .15f, .0f, .0f, .0f, .0f);
 
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(star->getChild(star->getName() + "Renderer"));
         renderObjects.push_back(renderer);
@@ -433,7 +425,11 @@ void init() {
     }
 
     for (int i = 0; i < count_asteroids; i++) {
-        KinematicObject *asteroid = spawner->createSphere("asteroid", i, ASTEROID_IMG_ID, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .5);
+        GLfloat col_grayish = Random::Range(100, 255);
+        KinematicObject *asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
+            col_grayish, col_grayish, col_grayish,
+            0.5f, 3.0f,
+            Random::RangeF(0.1, 5), Random::ZeroOrOne(), Random::ZeroOrOne(), Random::ZeroOrOne());
 
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(asteroid->getChild(asteroid->getName() + "Renderer"));
         renderObjects.push_back(renderer);
@@ -445,7 +441,7 @@ void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
     glDepthFunc(GL_LESS);
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
     //resize(width, height); // LEM: should not be needed
 }
@@ -474,7 +470,7 @@ int main(int argc, char **argv) {
     window = glutCreateWindow("3D Asteroids");
     glutDisplayFunc(&display);
     glutTimerFunc(1000 / 60.0, &timer, 1);
-    glutReshapeFunc(&resize);
+    //glutReshapeFunc(&resize);
     glutKeyboardFunc(&keyPressed);
     glutKeyboardUpFunc(&keyReleased);
     glutSpecialFunc(&specialKeyPressed);

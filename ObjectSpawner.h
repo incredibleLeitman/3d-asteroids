@@ -10,9 +10,12 @@ public:
 
     virtual ~ObjectSpawner() = default;
 
-    KinematicObject * createSphere(std::string name, int index, GLuint texId, GLfloat r, GLfloat g, GLfloat b, GLdouble radius);
+    KinematicObject * createSphere(std::string name, GLuint texId,
+        GLfloat r, GLfloat g, GLfloat b,
+        GLdouble radius_min, GLdouble radius_max,
+        float rotspeed, float rot_x, float rot_y, float rot_z);
 
-    KinematicObject * createCube(std::string name, int index, GLuint texId, GLfloat r, GLfloat g, GLfloat b);
+    KinematicObject * createCube(std::string name, GLuint texId, GLfloat r, GLfloat g, GLfloat b);
 };
 
 #endif // OBJECT_SPAWNER_H
