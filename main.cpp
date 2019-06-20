@@ -40,11 +40,15 @@ std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 KinematicObject *player;
 std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
 std::vector<std::shared_ptr<CollidableObject>> collidableObjects = std::vector<std::shared_ptr<CollidableObject>>();
+std::vector<KinematicObject*> kinematicObjects = std::vector<KinematicObject*>(); // TODO: Should be shared_ptr
 
 void timer(int val) {
     glutPostRedisplay();
     glutTimerFunc(1000 / 60, &timer, 1);
-    player->update(1 / 60.0);
+
+    for (auto object : kinematicObjects) {
+        object->update(1 / 60.0);
+    }
 }
 
 void resize(int width, int height) {
@@ -446,6 +450,8 @@ void init() {
 
         std::shared_ptr<KinematicObject> star_shared(star);
         root->addChild(star_shared);
+
+        kinematicObjects.push_back(star);
     }
 
     for (int i = 0; i < count_asteroids; i++) {
@@ -453,7 +459,7 @@ void init() {
         KinematicObject *asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
                                                           col_grayish, col_grayish, col_grayish,
                                                           ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
-                                                          Random::RangeF(0.1, 5), Random::ZeroOrOne(),
+                                                          Random::RangeF(-15, 15), Random::ZeroOrOne(),
                                                           Random::ZeroOrOne(), Random::ZeroOrOne());
 
         // Add renderer
@@ -468,6 +474,8 @@ void init() {
 
         std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
         root->addChild(asteroid_shared);
+
+        kinematicObjects.push_back(asteroid);
     }
     resize(width, height);
 }
@@ -488,6 +496,8 @@ int main(int argc, char **argv) {
     // Add the player to the root node
     std::shared_ptr<KinematicObject> sharedPlayer(player);
     root->addChild(sharedPlayer);
+
+    kinematicObjects.push_back(player);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);

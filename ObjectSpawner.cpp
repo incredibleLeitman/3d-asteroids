@@ -19,6 +19,10 @@ KinematicObject *ObjectSpawner::createSphere(std::string name, GLuint texId,
                                       Eigen::Vector3d::Zero(),
                                       Eigen::Vector3d::Zero());
 
+    sphere->angularThrust = Eigen::Vector3d{rot_x, rot_y, rot_z};
+    sphere->angularVelocity = Eigen::Vector3d{rotspeed, rotspeed, rotspeed};
+    sphere->linearVelocity = Eigen::Vector3d::Zero();
+
     GLfloat r_col_r = r / 255.0f;
     GLfloat r_col_g = g / 255.0f;
     GLfloat r_col_b = b / 255.0f;

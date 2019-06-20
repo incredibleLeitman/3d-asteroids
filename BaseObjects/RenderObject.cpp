@@ -43,12 +43,6 @@ void SphereRenderObject::render(float step) {
 
         glMultMatrixf(matrix);
 
-        // rotate
-        // TODO: This shouldn't be here, it should be done by a KinematicObject!
-        if (rotspeed != 0 && (rot_x != 0.0f || rot_y != 0.0f || rot_z != 0.0f)) {
-            glRotatef(step * rotspeed, rot_x, rot_y, rot_z);
-        }
-
         if (texId != 0) {
             GLUquadric *sphere = gluNewQuadric();
             gluQuadricTexture(sphere, GL_TRUE);
