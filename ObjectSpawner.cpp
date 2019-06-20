@@ -1,6 +1,9 @@
+#include <utility>
+
 #include "BaseObjects/KinematicObject.h"
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
+#include "BaseObjects/CollidableObject.h"
 
 #include <iostream>
 
@@ -9,7 +12,7 @@ KinematicObject * ObjectSpawner::createSphere(std::string name, GLuint texId,
     GLdouble radius_min, GLdouble radius_max,
     float rotspeed, float rot_x, float rot_y, float rot_z) {
     //auto sphere = std::make_shared<KinematicObject>("Star" + std::to_string(i),
-    auto sphere = new KinematicObject(name,
+    auto sphere = new KinematicObject(std::move(name),
         Eigen::Vector3d{
             // random position within world space
             (Random::ZeroToOne() - 0.5f) * 100.0f ,
@@ -24,17 +27,13 @@ KinematicObject * ObjectSpawner::createSphere(std::string name, GLuint texId,
     float val = Random::RangeF(radius_min, radius_max);
     GLdouble r_radius = val;
 
-    /*std::cout << "created sphere: " << sphere->getName() << std::endl;
-    std::cout << "\tr_radius: " << r_radius << std::endl;
-    std::cout << "\tr_col_r: " << r_col_r << std::endl;
-    std::cout << "\tr_col_g: " << r_col_g << std::endl;
-    std::cout << "\tr_col_b: " << r_col_b << std::endl;*/
-
     sphere->addChild(std::make_shared<SphereRenderObject>(sphere->getName() + "Renderer",
         texId,
         r_col_r, r_col_g, r_col_b,
         r_radius,
         rotspeed, rot_x, rot_y, rot_z));
+
+    sphere->addChild(std::make_shared<CollidableObject>(sphere->getName() + "Collider", r_radius));
     return sphere;
 }
 

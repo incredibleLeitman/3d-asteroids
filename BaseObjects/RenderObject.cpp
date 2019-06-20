@@ -42,12 +42,18 @@ void SphereRenderObject::render(float step) {
             glColor3f(color[0], color[1], color[2]);
         }
 
-        Eigen::Vector3d pos = this->getParent()->getTransform().col(3).head<3>();
-        glTranslatef(pos.x(), pos.y(), pos.z());
+        // Transform by the object's Transform matrix
+        float matrix[16];
+        Eigen::Matrix4d transform = getTransform();
 
-        glPushMatrix();
+        for (int i = 0; i < 16; i++) {
+            matrix[i] = transform(i);
+        }
+
+        glMultMatrixf(matrix);
 
         // rotate
+        // TODO: This shouldn't be here, it should be done by a KinematicObject!
         if (rotspeed != 0 && (rot_x != 0.0f || rot_y != 0.0f || rot_z != 0.0f))
         {
             glRotatef(step * rotspeed, rot_x, rot_y, rot_z);
@@ -71,12 +77,8 @@ void SphereRenderObject::render(float step) {
     {
         throw e;
     }
-    //finally // so sad ;(
-    {
-        glPopMatrix();
-        glPopMatrix();
+    glPopMatrix();
 
-        // reset all set configurations
-        setIfDiff(enableTexture, GL_TEXTURE_2D);
-    }
+    // reset all set configurations
+    setIfDiff(enableTexture, GL_TEXTURE_2D);
 }

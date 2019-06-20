@@ -39,6 +39,7 @@ std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 //std::shared_ptr<KinematicObject> player;
 KinematicObject *player;
 std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
+std::vector<std::shared_ptr<CollidableObject>> collidableObjects = std::vector<std::shared_ptr<CollidableObject>>();
 
 void timer(int val) {
     glutPostRedisplay();
@@ -394,6 +395,13 @@ void display() {
         object->render(step);
     }
 
+    // check for collisions
+    for (auto &object : collidableObjects) {
+        if (object->collidesWith(std::dynamic_pointer_cast<CollidableObject>(player->getChild("PlayerCollider")))) {
+            throw std::exception();
+        }
+    }
+
     // render other spheres
     drawSolarSystem();
 
@@ -447,8 +455,13 @@ void init() {
             ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
             Random::RangeF(0.1, 5), Random::ZeroOrOne(), Random::ZeroOrOne(), Random::ZeroOrOne());
 
+        // Add renderer
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(asteroid->getChild(asteroid->getName() + "Renderer"));
         renderObjects.push_back(renderer);
+
+        // Add collider since player should collide with these
+        std::shared_ptr<CollidableObject> collider = std::dynamic_pointer_cast<CollidableObject>(asteroid->getChild(asteroid->getName() + "Collider"));
+        collidableObjects.push_back(collider);
 
         std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
         root->addChild(asteroid_shared);
@@ -466,7 +479,7 @@ int main(int argc, char **argv) {
                                  Eigen::Vector3d{0.0, 0.0, 8.0},
                                  Eigen::Vector3d{25.0, 25.0, 25.0},
                                  Eigen::Vector3d{2.0, 2.0, 2.0});
-    player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 5.0));
+    player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 1.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
     // Add the player to the root node

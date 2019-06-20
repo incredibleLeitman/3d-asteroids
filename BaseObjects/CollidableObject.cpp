@@ -3,15 +3,16 @@
 //
 
 #include <memory>
+#include <iostream>
 #include "CollidableObject.h"
 
 bool CollidableObject::collidesWith(const std::shared_ptr<CollidableObject>& other) {
     // Return true if the objects are closer to each other than their added radii
-    return (origin - other->getOrigin()).squaredNorm() < radius + other->getRadius();
+    return (getOrigin() - other->getOrigin()).squaredNorm() < (getRadius() + other->getRadius()) * (getRadius() + other->getRadius());
 }
 
-const Eigen::Vector3d &CollidableObject::getOrigin() const {
-    return origin;
+Eigen::Vector3d CollidableObject::getOrigin() {
+    return getTransform().col(3).head<3>();
 }
 
 double CollidableObject::getRadius() const {

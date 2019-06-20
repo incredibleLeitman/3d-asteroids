@@ -13,7 +13,7 @@ public:
 
     bool collidesWith(const std::shared_ptr<CollidableObject>& other);
 
-    const Eigen::Vector3d &getOrigin() const;
+    Eigen::Vector3d getOrigin();
 
     double getRadius() const;
 
