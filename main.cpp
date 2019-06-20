@@ -354,8 +354,6 @@ void display() {
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
 
     // handle mouse movement
-    gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
-        0., 0., 0., 0., 1., 0.);
     glRotatef(angle_x, 1.0, 0.0, 0.0);
     glRotatef(angle_y, 0.0, 1.0, 0.0);
 
