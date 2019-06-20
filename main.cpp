@@ -46,15 +46,16 @@ void timer(int val) {
     player->update(1 / 60.0);
 }
 
-//void resize(int width, int height) {
-//    // prevent division by zero
-//    if (height == 0) { height = 1; }
-//
-//    glViewport(0, 0, width, height);
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    glMatrixMode(GL_MODELVIEW);
-//}
+void resize(int width, int height) {
+    // prevent division by zero
+    if (height == 0) { height = 1; }
+
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(70.0f, (float)width / (float)height, 0.1f, 100.0f);
+    glMatrixMode(GL_MODELVIEW);
+}
 
 void keyPressed(unsigned char key, int x, int y) {
     // Esc is exit
@@ -292,69 +293,26 @@ void drawCockpit(float extentX, float extentY, float distZ, float topOffset, flo
     glTexCoord2f(0, 1);
     glVertex3f(extentX, extentY, extentX);
 
-
     glEnd();
 }
 
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-
-    // Greater FOV the faster the player moves
-    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
-                   10000.0f);
-
-    // handle mouse movement
-    gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
-        0., 0., 0., 0., 1., 0.);
-    glRotatef(angle_x, 1.0, 0.0, 0.0);
-    glRotatef(angle_y, 0.0, 1.0, 0.0);
-
-    // draw "cockpit" before applying player->movement
-    glEnable(GL_TEXTURE_2D);
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
-
-    glPushMatrix();
-    glTranslatef(0.0, -1.7, 0.0);
-    drawCockpit(1.5, 1.0, -0.5, 1.0, 2.5);
-    glPopMatrix();
-
-    std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
-
-    // universe - the one above all...
-    TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
-    GLUquadric *sphere = gluNewQuadric();
-    gluQuadricTexture(sphere, GL_TRUE);
-    gluSphere(sphere, WORLD_SIZE, 500, 500);
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
-
-    step += inc; // % FLT_MAX; ?
+void drawUniverse()
+{
     hour += inc;
     day += inc / 24.0;
     hour = hour - ((int)(hour / 24)) * 24;
     day = day - ((int)(day / 365)) * 365;
-
-    // render all RenderObjects
-    for (auto &object : renderObjects)
-    {
-        object->render(step);
-    }
 
     // ecliptic
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
     // sun
+    GLUquadric *sphere = gluNewQuadric();
     glEnable(GL_TEXTURE_2D);
-    glColor3f(1.0, 1.0, 0.0);
     TextureManager::Inst()->bindTexture(SUN_IMG_ID);
-    sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 1, 36, 72);
-    glEnable(GL_LIGHTING);
 
     // earth
     // position around the sun
@@ -364,7 +322,8 @@ void display() {
     glPushMatrix();
     // rotate the earth on its axis
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
-    glColor3f(1.0, 1.0, 1.0);
+    //glColor3f(1.0f, 1.0f, 1.0f);
+    glEnable(GL_TEXTURE_2D);
     TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
     sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
@@ -376,34 +335,85 @@ void display() {
     glTranslatef(0.7f, 0.0f, 0.0f);
     // rotate the moon also on its axis
     glRotatef(-360.0 * hour / 48.0, 0.0, 1.0, 0.0);
-    glColor3f(1, 1, 1);
     TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
     sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 0.1, 36, 72);
+}
 
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+
+    /*glTranslatef(0.0f, 0.0f, -6.0f);
+    glutSolidSphere(1.0, 200, 160);
+    glutSwapBuffers();
+    return;*/
+
+    // Greater FOV the faster the player moves
+    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
+
+    // handle mouse movement
+    gluLookAt(-sinf(RAD(angle_y)), sinf(RAD(angle_x)), cosf(RAD(angle_y)),
+        0., 0., 0., 0., 1., 0.);
+    glRotatef(angle_x, 1.0, 0.0, 0.0);
+    glRotatef(angle_y, 0.0, 1.0, 0.0);
+
+    // draw "cockpit" before applying player movement
+    glPushMatrix();
+    glTranslatef(0.0, -1.7, 0.0);
+    glEnable(GL_TEXTURE_2D);
+    TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
+    drawCockpit(1.5, 1.0, -0.5, 1.0, 2.5);
+    glPopMatrix();
+
+    std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
+
+    // universe background - the one above all...
+    TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
+    //TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
+    GLUquadric *sphere = gluNewQuadric();
+    gluQuadricTexture(sphere, GL_TRUE);
+    gluSphere(sphere, WORLD_SIZE, 50, 50);
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHTING);
+
+    // render all RenderObjects
+    step += inc;
+    for (auto &object : renderObjects)
+    {
+        object->render(step);
+    }
+
+    // render other spheres
+    drawUniverse();
 
     glutSwapBuffers();
 }
 
 void init() {
-    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_diffuse[] = {1.0, 0.8, 0.6, 1.0};
-    GLfloat mat_shininess[] = {15.0};
-    GLfloat light_position[] = {0.0, 0.0, -8.0, 1.0};
-    GLfloat light_diffuse[] = {0.0, 1.0, 1.0, 0.0};
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
+    GLfloat mat_shininess[] = { 15.0 };
+    GLfloat light_position[] = { 0.0, 0.0, 1.0, 1.0 };
+    GLfloat light_diffuse[] = { 0.0, 1.0, 1.0, 0.0 };
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0);
+    glDepthFunc(GL_LESS);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_DEPTH_TEST);
+    glShadeModel(GL_SMOOTH);
+
+    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // load textures
     TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
@@ -415,7 +425,9 @@ void init() {
     // create objects
     //spawner->createCube();
     for (int i = 0; i < count_stars; i++) {
-        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100), .1f, .15f, .0f, .0f, .0f, .0f);
+        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100),
+            STAR_MIN_SIZE, STAR_MAX_SIZE,
+            .0f, .0f, .0f, .0f);
 
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(star->getChild(star->getName() + "Renderer"));
         renderObjects.push_back(renderer);
@@ -428,7 +440,7 @@ void init() {
         GLfloat col_grayish = Random::Range(100, 255);
         KinematicObject *asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
             col_grayish, col_grayish, col_grayish,
-            0.5f, 3.0f,
+            ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
             Random::RangeF(0.1, 5), Random::ZeroOrOne(), Random::ZeroOrOne(), Random::ZeroOrOne());
 
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(asteroid->getChild(asteroid->getName() + "Renderer"));
@@ -437,13 +449,7 @@ void init() {
         std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
         root->addChild(asteroid_shared);
     }
-
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH);
-    //resize(width, height); // LEM: should not be needed
+    resize(width, height);
 }
 
 int main(int argc, char **argv) {

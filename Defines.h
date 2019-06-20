@@ -15,11 +15,15 @@ const int count_asteroids = 100;
 const int width = 1920;
 const int height = 1080;
 
-float inc = 1.00;
+float inc = .5f;
 
 const float mouse_speed = 0.2;
 
 const int WORLD_SIZE = 1000;
+const float STAR_MIN_SIZE = 0.1f;
+const float STAR_MAX_SIZE = 0.15f;
+const float ASTEROID_MIN_SIZE = 0.5f;
+const float ASTEROID_MAX_SIZE = 3.0f;
 
 const GLuint ASTEROID_IMG_ID = 1;
 const GLuint EARTH_IMG_ID = 2;

@@ -40,6 +40,7 @@ void SphereRenderObject::render(float step) {
         // TODO: reset color?
         if (color[0] != 0 || color[1] != 0 || color[2] != 0)
         {
+            if (enableLighting == GL_TRUE) glDisable(GL_LIGHTING);
             glColor3f(color[0], color[1], color[2]);
         }
 
@@ -49,17 +50,9 @@ void SphereRenderObject::render(float step) {
         glPushMatrix();
 
         // rotate
-        if (rotspeed != 0)
+        if (rotspeed != 0 && (rot_x != 0.0f || rot_y != 0.0f || rot_z != 0.0f))
         {
-            if (rot_x == 0.0f && rot_y == 0.0f && rot_z == 0.0f)
-            {
-                // lol
-            }
-            else
-            {
-                // step is between 0 and 23
-                glRotatef(step * rotspeed, rot_x, rot_y, rot_z);
-            }
+            glRotatef(step * rotspeed, rot_x, rot_y, rot_z);
         }
 
         if (texId != 0)
