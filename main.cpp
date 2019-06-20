@@ -62,11 +62,11 @@ void timer(int val) {
     }
 }
 
-void resize(int width, int height) {
+void resize(int new_width, int new_height) {
     // prevent division by zero
-    if (height == 0) { height = 1; }
+    if (new_height == 0) { new_height = 1; }
 
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, new_width, new_height);
 }
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -305,7 +305,7 @@ void display() {
     // Greater FOV the faster the player moves
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
+    gluPerspective(MIN_FOV + std::min(player->linearVelocity.norm() * 100.0, MAX_FOV_ADD), (float) width / (float) height, 0.1f,
                    10000.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

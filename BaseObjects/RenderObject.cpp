@@ -3,6 +3,9 @@
 #include "RenderObject.h"
 #include "../Util/TextureManager.h"
 
+const int DEFAULT_SPHERE_SLICES = 5;
+const int DEFAULT_SPHERE_STACKS = 8;
+
 bool setIfDiff(GLboolean val, GLenum cap) {
     if (val != glIsEnabled(cap)) {
         if (val == GL_TRUE) {
@@ -44,14 +47,16 @@ void SphereRenderObject::render() {
         glMultMatrixf(matrix);
 
         if (texId != 0) {
+            // There is a texture -> draw a gluSphere with a quadric texture
             GLUquadric *sphere = gluNewQuadric();
             gluQuadricTexture(sphere, GL_TRUE);
             //  0.1     15      15
             //  0.3     36      72
             //  1000    500     500
-            gluSphere(sphere, radius, 36, 72);
+            gluSphere(sphere, radius, DEFAULT_SPHERE_SLICES, DEFAULT_SPHERE_STACKS);
         } else {
-            glutSolidSphere(radius, 15, 15);
+            // No texture -> draw a default solid sphere
+            glutSolidSphere(radius, DEFAULT_SPHERE_SLICES, DEFAULT_SPHERE_STACKS);
         }
     }
     catch (std::exception &e) {

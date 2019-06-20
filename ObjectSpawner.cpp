@@ -1,9 +1,13 @@
 #include <utility>
 
+#include <utility>
+
 #include "BaseObjects/KinematicObject.h"
 #include "ObjectSpawner.h"
 #include "Util/RandomRange.h"
 #include "BaseObjects/CollidableObject.h"
+
+const float OBJECT_RANGE = 150.0f;
 
 KinematicObject *ObjectSpawner::createSphere(std::string name, GLuint texId,
                                              GLfloat r, GLfloat g, GLfloat b,
@@ -12,10 +16,9 @@ KinematicObject *ObjectSpawner::createSphere(std::string name, GLuint texId,
     auto sphere = new KinematicObject(std::move(name),
                                       Eigen::Vector3d{
                                               // random position within world space
-                                              // TODO: Move parameters to Defines
-                                              (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                              (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                              (Random::ZeroToOne() - 0.5f) * 100.0f},
+                                              (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE,
+                                              (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE,
+                                              (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE},
                                       Eigen::Vector3d::Zero(),
                                       Eigen::Vector3d::Zero());
 
@@ -41,11 +44,11 @@ KinematicObject *ObjectSpawner::createSphere(std::string name, GLuint texId,
 
 KinematicObject *ObjectSpawner::createCube(std::string name, GLuint texId,
                                            GLfloat r, GLfloat g, GLfloat b) {
-    auto cube = new KinematicObject(name,
+    auto cube = new KinematicObject(std::move(name),
                                     Eigen::Vector3d{
-                                            (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                            (Random::ZeroToOne() - 0.5f) * 100.0f,
-                                            (Random::ZeroToOne() - 0.5f) * 100.0f},
+                                            (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE,
+                                            (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE,
+                                            (Random::ZeroToOne() - 0.5f) * OBJECT_RANGE},
                                     Eigen::Vector3d::Zero(),
                                     Eigen::Vector3d::Zero());
 

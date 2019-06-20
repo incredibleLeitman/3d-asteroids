@@ -10,7 +10,7 @@
 #define RAD(x) (((x)*M_PI)/180.)
 
 const int count_stars = 50;
-const int count_asteroids = 100;
+const int count_asteroids = 500;
 
 const int width = 1920;
 const int height = 1080;
@@ -23,7 +23,10 @@ const int WORLD_SIZE = 2000;
 const float STAR_MIN_SIZE = 0.1f;
 const float STAR_MAX_SIZE = 0.15f;
 const float ASTEROID_MIN_SIZE = 0.5f;
-const float ASTEROID_MAX_SIZE = 3.0f;
+const float ASTEROID_MAX_SIZE = 6.0f;
+
+const double MIN_FOV = 70.0;
+const double MAX_FOV_ADD = 40.0;
 
 const GLuint ASTEROID_IMG_ID = 1;
 const GLuint EARTH_IMG_ID = 2;
@@ -32,7 +35,7 @@ const GLuint SUN_IMG_ID = 4;
 const GLuint UNIVERSE_IMG_ID = 5;
 
 GLfloat sunLightPosition[] = { 0.0, 0.0, 0.0, 1.0 };
-GLfloat sunLightDiffuse[] = { 1000.0, 1000.0, 1000.0, 0.0 };
+GLfloat sunLightDiffuse[] = { 1.0, 1.0, 1.0, 0.0 };
 GLfloat sunLightAmbient[] = { 0.7, 0.7, 1.0, 1.0 };
 
 #endif // DEFINES_H
