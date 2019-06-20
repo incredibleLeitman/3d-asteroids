@@ -3,16 +3,11 @@
 #include "RenderObject.h"
 #include "../Util/TextureManager.h"
 
-bool setIfDiff(GLboolean val, GLenum cap)
-{
-    if (val != glIsEnabled(cap))
-    {
-        if (val == GL_TRUE)
-        {
+bool setIfDiff(GLboolean val, GLenum cap) {
+    if (val != glIsEnabled(cap)) {
+        if (val == GL_TRUE) {
             glEnable(cap);
-        }
-        else
-        {
+        } else {
             glDisable(cap);
         }
         return true;
@@ -21,24 +16,20 @@ bool setIfDiff(GLboolean val, GLenum cap)
 }
 
 void SphereRenderObject::render(float step) {
-    if (this->getParent() == nullptr)
-    {
+    if (this->getParent() == nullptr) {
         throw std::exception();
     }
 
     GLboolean enableTexture = glIsEnabled(GL_TEXTURE_2D);
     glPushMatrix();
-    try
-    {
-        if (texId != 0)
-        {
+    try {
+        if (texId != 0) {
             if (enableTexture != GL_TRUE) glEnable(GL_TEXTURE_2D);
             TextureManager::Inst()->bindTexture(texId);
         }
 
         // TODO: reset color?
-        if (color[0] != 0 || color[1] != 0 || color[2] != 0)
-        {
+        if (color[0] != 0 || color[1] != 0 || color[2] != 0) {
             glColor3f(color[0], color[1], color[2]);
         }
 
@@ -54,27 +45,22 @@ void SphereRenderObject::render(float step) {
 
         // rotate
         // TODO: This shouldn't be here, it should be done by a KinematicObject!
-        if (rotspeed != 0 && (rot_x != 0.0f || rot_y != 0.0f || rot_z != 0.0f))
-        {
+        if (rotspeed != 0 && (rot_x != 0.0f || rot_y != 0.0f || rot_z != 0.0f)) {
             glRotatef(step * rotspeed, rot_x, rot_y, rot_z);
         }
 
-        if (texId != 0)
-        {
+        if (texId != 0) {
             GLUquadric *sphere = gluNewQuadric();
             gluQuadricTexture(sphere, GL_TRUE);
             //  0.1     15      15
             //  0.3     36      72
             //  1000    500     500
             gluSphere(sphere, radius, 36, 72);
-        }
-        else
-        {
+        } else {
             glutSolidSphere(radius, 15, 15);
         }
     }
-    catch (std::exception &e)
-    {
+    catch (std::exception &e) {
         throw e;
     }
     glPopMatrix();

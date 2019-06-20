@@ -293,16 +293,15 @@ void drawCockpit(float extentX, float extentY, float distZ, float topOffset, flo
     glEnd();
 }
 
-void drawSolarSystem()
-{
+void drawSolarSystem() {
     glPushMatrix();
 
     glTranslatef(300, 0, -500);
     glScalef(300, 300, 300);
     hour += inc;
     day += inc / 24.0;
-    hour = hour - ((int)(hour / 24)) * 24;
-    day = day - ((int)(day / 365)) * 365;
+    hour = hour - ((int) (hour / 24)) * 24;
+    day = day - ((int) (day / 365)) * 365;
 
     // ecliptic
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
@@ -358,7 +357,8 @@ void display() {
     // Greater FOV the faster the player moves
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
+    gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f,
+                   10000.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -390,8 +390,7 @@ void display() {
 
     // render all RenderObjects
     step += inc;
-    for (auto &object : renderObjects)
-    {
+    for (auto &object : renderObjects) {
         object->render(step);
     }
 
@@ -409,9 +408,9 @@ void display() {
 }
 
 void init() {
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 15.0 };
+    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess[] = {15.0};
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -434,14 +433,15 @@ void init() {
     TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
 
-    // create objects
-    //spawner->createCube();
+    // create stars and asteroids
     for (int i = 0; i < count_stars; i++) {
-        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100),
-            STAR_MIN_SIZE, STAR_MAX_SIZE,
-            .0f, .0f, .0f, .0f);
+        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255),
+                                                      Random::Range(244, 255), Random::Range(0, 100),
+                                                      STAR_MIN_SIZE, STAR_MAX_SIZE,
+                                                      .0f, .0f, .0f, .0f);
 
-        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(star->getChild(star->getName() + "Renderer"));
+        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
+                star->getChild(star->getName() + "Renderer"));
         renderObjects.push_back(renderer);
 
         std::shared_ptr<KinematicObject> star_shared(star);
@@ -451,16 +451,19 @@ void init() {
     for (int i = 0; i < count_asteroids; i++) {
         GLfloat col_grayish = Random::Range(100, 255);
         KinematicObject *asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
-            col_grayish, col_grayish, col_grayish,
-            ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
-            Random::RangeF(0.1, 5), Random::ZeroOrOne(), Random::ZeroOrOne(), Random::ZeroOrOne());
+                                                          col_grayish, col_grayish, col_grayish,
+                                                          ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
+                                                          Random::RangeF(0.1, 5), Random::ZeroOrOne(),
+                                                          Random::ZeroOrOne(), Random::ZeroOrOne());
 
         // Add renderer
-        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(asteroid->getChild(asteroid->getName() + "Renderer"));
+        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
+                asteroid->getChild(asteroid->getName() + "Renderer"));
         renderObjects.push_back(renderer);
 
         // Add collider since player should collide with these
-        std::shared_ptr<CollidableObject> collider = std::dynamic_pointer_cast<CollidableObject>(asteroid->getChild(asteroid->getName() + "Collider"));
+        std::shared_ptr<CollidableObject> collider = std::dynamic_pointer_cast<CollidableObject>(
+                asteroid->getChild(asteroid->getName() + "Collider"));
         collidableObjects.push_back(collider);
 
         std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
