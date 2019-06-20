@@ -36,6 +36,7 @@ private:
 };
 
 
+/// Renders a spaceship cockpit, e.g. for putting the player camera inside
 class CockpitRenderObject : public RenderObject {
 public:
     CockpitRenderObject(std::string name, GLuint texId, float extentX, float extentY, float distZ, float topOffset,
