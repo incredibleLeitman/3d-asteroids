@@ -62,3 +62,87 @@ void SphereRenderObject::render() {
     // reset all set configurations
     setIfDiff(enableTexture, GL_TEXTURE_2D);
 }
+
+void CockpitRenderObject::render() {
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+    TextureManager::Inst()->bindTexture(texId);
+
+    // Transform by the object's Transform matrix
+    float matrix[16];
+    Eigen::Matrix4d transform = getTransform();
+
+    for (int i = 0; i < 16; i++) {
+        matrix[i] = transform(i);
+    }
+
+    glMultMatrixf(matrix);
+
+    glTranslatef(0.0, -1.7, 0.0);
+
+    glBegin(GL_QUADS);
+
+    // Top
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, topDistance, -extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, topDistance, -extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Back
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, topDistance, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, topDistance, extentX);
+
+    // Bottom
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, -extentY, extentX);
+
+    // Left
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, extentX);
+
+    // Front
+    glTexCoord2f(0, 0);
+    glVertex3f(-extentX, -extentY, distZ);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(-extentX, extentY, distZ - topOffset);
+
+    // Right
+    glTexCoord2f(0, 0);
+    glVertex3f(extentX, -extentY, extentX);
+    glTexCoord2f(1, 0);
+    glVertex3f(extentX, -extentY, distZ);
+    glTexCoord2f(1, 1);
+    glVertex3f(extentX, extentY, distZ - topOffset);
+    glTexCoord2f(0, 1);
+    glVertex3f(extentX, extentY, extentX);
+
+    glEnd();
+
+    glPopMatrix();
+}

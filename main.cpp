@@ -241,72 +241,6 @@ void mouseMotion(int x, int y) {
     }
 }
 
-void drawCockpit(float extentX, float extentY, float distZ, float topOffset, float topDistance) {
-    glBegin(GL_QUADS);
-
-    // Top
-    glTexCoord2f(0, 0);
-    glVertex3f(-extentX, topDistance, -extentX);
-    glTexCoord2f(1, 0);
-    glVertex3f(extentX, topDistance, -extentX);
-    glTexCoord2f(1, 1);
-    glVertex3f(extentX, topDistance, extentX);
-    glTexCoord2f(0, 1);
-    glVertex3f(-extentX, topDistance, extentX);
-
-    // Back
-    glTexCoord2f(0, 0);
-    glVertex3f(-extentX, -extentY, extentX);
-    glTexCoord2f(1, 0);
-    glVertex3f(extentX, -extentY, extentX);
-    glTexCoord2f(1, 1);
-    glVertex3f(extentX, topDistance, extentX);
-    glTexCoord2f(0, 1);
-    glVertex3f(-extentX, topDistance, extentX);
-
-    // Bottom
-    glTexCoord2f(0, 0);
-    glVertex3f(-extentX, -extentY, distZ);
-    glTexCoord2f(1, 0);
-    glVertex3f(extentX, -extentY, distZ);
-    glTexCoord2f(1, 1);
-    glVertex3f(extentX, -extentY, extentX);
-    glTexCoord2f(0, 1);
-    glVertex3f(-extentX, -extentY, extentX);
-
-    // Left
-    glTexCoord2f(0, 0);
-    glVertex3f(-extentX, -extentY, extentX);
-    glTexCoord2f(1, 0);
-    glVertex3f(-extentX, -extentY, distZ);
-    glTexCoord2f(1, 1);
-    glVertex3f(-extentX, extentY, distZ - topOffset);
-    glTexCoord2f(0, 1);
-    glVertex3f(-extentX, extentY, extentX);
-
-    // Front
-    glTexCoord2f(0, 0);
-    glVertex3f(-extentX, -extentY, distZ);
-    glTexCoord2f(1, 0);
-    glVertex3f(extentX, -extentY, distZ);
-    glTexCoord2f(1, 1);
-    glVertex3f(extentX, extentY, distZ - topOffset);
-    glTexCoord2f(0, 1);
-    glVertex3f(-extentX, extentY, distZ - topOffset);
-
-    // Right
-    glTexCoord2f(0, 0);
-    glVertex3f(extentX, -extentY, extentX);
-    glTexCoord2f(1, 0);
-    glVertex3f(extentX, -extentY, distZ);
-    glTexCoord2f(1, 1);
-    glVertex3f(extentX, extentY, distZ - topOffset);
-    glTexCoord2f(0, 1);
-    glVertex3f(extentX, extentY, extentX);
-
-    glEnd();
-}
-
 void drawSolarSystem() {
     glPushMatrix();
 
@@ -379,16 +313,6 @@ void display() {
     // handle mouse movement
     glRotatef(angle_x, 1.0, 0.0, 0.0);
     glRotatef(angle_y, 0.0, 1.0, 0.0);
-
-    glEnable(GL_LIGHTING);
-
-    // draw "cockpit" before applying player movement
-    glPushMatrix();
-    glTranslatef(0.0, -1.7, 0.0);
-    glEnable(GL_TEXTURE_2D);
-    TextureManager::Inst()->bindTexture(COCKPIT_IMG_ID);
-    drawCockpit(1.5, 1.0, -0.5, 1.0, 2.5);
-    glPopMatrix();
 
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
@@ -497,11 +421,16 @@ int main(int argc, char **argv) {
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 1.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
+    auto playerCockpit = std::make_shared<CockpitRenderObject>("PlayerCockpit", COCKPIT_IMG_ID, 1.5, 1.0, -0.5, 1.0, 2.5);
+
+    player->addChild(playerCockpit);
+
     // Add the player to the root node
     std::shared_ptr<KinematicObject> sharedPlayer(player);
     root->addChild(sharedPlayer);
 
     kinematicObjects.push_back(player);
+    renderObjects.push_back(playerCockpit);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH);

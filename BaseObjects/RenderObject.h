@@ -35,4 +35,22 @@ private:
     GLdouble radius;
 };
 
+
+class CockpitRenderObject : public RenderObject {
+public:
+    CockpitRenderObject(std::string name, GLuint texId, float extentX, float extentY, float distZ, float topOffset,
+                        float topDistance) : RenderObject(std::move(name), texId, 1.0, 1.0, 1.0), extentX(extentX),
+                                             extentY(extentY), distZ(distZ), topOffset(topOffset),
+                                             topDistance(topDistance) {};
+
+    void render() override;
+
+private:
+    float extentX;
+    float extentY;
+    float distZ;
+    float topOffset;
+    float topDistance;
+};
+
 #endif //RENDER_OBJECT_H
