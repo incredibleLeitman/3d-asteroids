@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "RenderObject.h"
-#include "..\Util\TextureManager.h"
+#include "../Util/TextureManager.h"
 
 bool setIfDiff(GLboolean val, GLenum cap)
 {
@@ -23,7 +23,7 @@ bool setIfDiff(GLboolean val, GLenum cap)
 void SphereRenderObject::render(float step) {
     if (this->getParent() == nullptr)
     {
-        throw std::exception("cannot render object without parent!");
+        throw std::exception();
     }
 
     GLboolean enableTexture = glIsEnabled(GL_TEXTURE_2D);
