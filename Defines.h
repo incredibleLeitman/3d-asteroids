@@ -19,7 +19,7 @@ float inc = .5f;
 
 const float mouse_speed = 0.2;
 
-const int WORLD_SIZE = 1000;
+const int WORLD_SIZE = 2000;
 const float STAR_MIN_SIZE = 0.1f;
 const float STAR_MAX_SIZE = 0.15f;
 const float ASTEROID_MIN_SIZE = 0.5f;

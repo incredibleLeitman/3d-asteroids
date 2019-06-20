@@ -298,6 +298,10 @@ void drawCockpit(float extentX, float extentY, float distZ, float topOffset, flo
 
 void drawUniverse()
 {
+    glPushMatrix();
+
+    glTranslatef(300, 0, -500);
+    glScalef(300, 300, 300);
     hour += inc;
     day += inc / 24.0;
     hour = hour - ((int)(hour / 24)) * 24;
@@ -339,6 +343,8 @@ void drawUniverse()
     sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 0.1, 36, 72);
+
+    glPopMatrix();
 }
 
 void display() {
