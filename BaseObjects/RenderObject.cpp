@@ -27,7 +27,6 @@ void SphereRenderObject::render(float step) {
     }
 
     GLboolean enableTexture = glIsEnabled(GL_TEXTURE_2D);
-    GLboolean enableLighting = glIsEnabled(GL_LIGHTING);
     glPushMatrix();
     try
     {
@@ -40,7 +39,6 @@ void SphereRenderObject::render(float step) {
         // TODO: reset color?
         if (color[0] != 0 || color[1] != 0 || color[2] != 0)
         {
-            if (enableLighting == GL_TRUE) glDisable(GL_LIGHTING);
             glColor3f(color[0], color[1], color[2]);
         }
 
@@ -80,6 +78,5 @@ void SphereRenderObject::render(float step) {
 
         // reset all set configurations
         setIfDiff(enableTexture, GL_TEXTURE_2D);
-        setIfDiff(enableLighting, GL_LIGHTING);
     }
 }

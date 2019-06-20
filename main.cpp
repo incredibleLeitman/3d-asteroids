@@ -51,10 +51,6 @@ void resize(int width, int height) {
     if (height == 0) { height = 1; }
 
     glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    //gluPerspective(70.0f, (float)width / (float)height, 0.1f, 100.0f);
-    glMatrixMode(GL_MODELVIEW);
 }
 
 void keyPressed(unsigned char key, int x, int y) {
@@ -296,7 +292,7 @@ void drawCockpit(float extentX, float extentY, float distZ, float topOffset, flo
     glEnd();
 }
 
-void drawUniverse()
+void drawSolarSystem()
 {
     glPushMatrix();
 
@@ -312,11 +308,19 @@ void drawUniverse()
     glRotatef(15.0, 1.0, 0.0, 0.0);
 
     // sun
+    glDisable(GL_LIGHTING);
+    glColor3f(1.0, 1.0, 1.0); // Make sure the sun is bright
     GLUquadric *sphere = gluNewQuadric();
     glEnable(GL_TEXTURE_2D);
     TextureManager::Inst()->bindTexture(SUN_IMG_ID);
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, 1, 36, 72);
+    glEnable(GL_LIGHTING);
+
+    // Set the light position here so it's the same as the sun position
+    glLightfv(GL_LIGHT0, GL_POSITION, sunLightPosition);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, sunLightDiffuse);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, sunLightAmbient);
 
     // earth
     // position around the sun
@@ -349,19 +353,19 @@ void drawUniverse()
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-
-    /*glTranslatef(0.0f, 0.0f, -6.0f);
-    glutSolidSphere(1.0, 200, 160);
-    glutSwapBuffers();
-    return;*/
 
     // Greater FOV the faster the player moves
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     gluPerspective(60 + std::min(player->linearVelocity.norm() * 100.0, 40.0), (float) width / (float) height, 0.1f, 10000.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     // handle mouse movement
     glRotatef(angle_x, 1.0, 0.0, 0.0);
     glRotatef(angle_y, 0.0, 1.0, 0.0);
+
+    glEnable(GL_LIGHTING);
 
     // draw "cockpit" before applying player movement
     glPushMatrix();
@@ -374,12 +378,14 @@ void display() {
     std::dynamic_pointer_cast<CameraObject>(player->getChild("PlayerCamera"))->setCamera();
 
     // universe background - the one above all...
+    glDisable(GL_LIGHTING);
     TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
     //TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
     GLUquadric *sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, WORLD_SIZE, 50, 50);
     glDisable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHTING);
 
     // render all RenderObjects
     step += inc;
@@ -389,24 +395,19 @@ void display() {
     }
 
     // render other spheres
-    drawUniverse();
+    drawSolarSystem();
 
     glutSwapBuffers();
 }
 
 void init() {
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
+    GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 15.0 };
-    GLfloat light_position[] = { 0.0, 0.0, 1.0, 1.0 };
-    GLfloat light_diffuse[] = { 0.0, 1.0, 1.0, 0.0 };
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0);
@@ -416,7 +417,6 @@ void init() {
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // load textures

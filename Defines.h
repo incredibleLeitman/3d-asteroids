@@ -31,4 +31,8 @@ const GLuint COCKPIT_IMG_ID = 3;
 const GLuint SUN_IMG_ID = 4;
 const GLuint UNIVERSE_IMG_ID = 5;
 
+GLfloat sunLightPosition[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat sunLightDiffuse[] = { 1000.0, 1000.0, 1000.0, 0.0 };
+GLfloat sunLightAmbient[] = { 0.7, 0.7, 1.0, 1.0 };
+
 #endif // DEFINES_H
