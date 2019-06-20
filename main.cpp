@@ -38,6 +38,10 @@ ObjectSpawner *spawner = new ObjectSpawner();
 std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 //std::shared_ptr<KinematicObject> player;
 KinematicObject *player;
+
+// TODO: This is a temporary, ugly solution for saving all objects for rendering, checking collisions, etc.
+//  In the future, we might want a factory or a similar data structure for creating objects, which puts them into
+//  their corresponding containers automatically.
 std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
 std::vector<std::shared_ptr<CollidableObject>> collidableObjects = std::vector<std::shared_ptr<CollidableObject>>();
 std::vector<KinematicObject*> kinematicObjects = std::vector<KinematicObject*>(); // TODO: Should be shared_ptr
@@ -48,6 +52,13 @@ void timer(int val) {
 
     for (auto object : kinematicObjects) {
         object->update(1 / 60.0);
+    }
+
+    // check for collisions
+    for (auto &object : collidableObjects) {
+        if (object->collidesWith(std::dynamic_pointer_cast<CollidableObject>(player->getChild("PlayerCollider")))) {
+            throw std::exception();
+        }
     }
 }
 
@@ -189,7 +200,6 @@ static void specialKeyPressed(int key, int x, int y) {
 }
 
 void mouseButton(int button, int state, int x, int y) {
-    // mouse Example code
     switch (button) {
         case GLUT_LEFT_BUTTON:
             if (state == GLUT_DOWN) {
@@ -393,20 +403,14 @@ void display() {
     glEnable(GL_LIGHTING);
 
     // render all RenderObjects
-    step += inc;
     for (auto &object : renderObjects) {
-        object->render(step);
-    }
-
-    // check for collisions
-    for (auto &object : collidableObjects) {
-        if (object->collidesWith(std::dynamic_pointer_cast<CollidableObject>(player->getChild("PlayerCollider")))) {
-            throw std::exception();
-        }
+        object->render();
     }
 
     // render other spheres
     drawSolarSystem();
+
+    step += inc;
 
     glutSwapBuffers();
 }

@@ -6,10 +6,12 @@
 
 #include "Object.h"
 
+/// A camera (which e.g. the player has)
 class CameraObject : public Object {
 public:
     explicit CameraObject(std::string name) : Object(std::move(name)) {};
 
+    /// Set the camera by multiplying with the inverse transform
     void setCamera();
 };
 

@@ -7,7 +7,6 @@
 #include "CollidableObject.h"
 
 bool CollidableObject::collidesWith(const std::shared_ptr<CollidableObject>& other) {
-    // Return true if the objects are closer to each other than their added radii
     return (getOrigin() - other->getOrigin()).squaredNorm() < (getRadius() + other->getRadius()) * (getRadius() + other->getRadius());
 }
 

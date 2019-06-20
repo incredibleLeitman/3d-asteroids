@@ -15,7 +15,7 @@ bool setIfDiff(GLboolean val, GLenum cap) {
     return false;
 }
 
-void SphereRenderObject::render(float step) {
+void SphereRenderObject::render() {
     if (this->getParent() == nullptr) {
         throw std::exception();
     }

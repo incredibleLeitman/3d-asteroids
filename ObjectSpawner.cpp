@@ -32,8 +32,7 @@ KinematicObject *ObjectSpawner::createSphere(std::string name, GLuint texId,
     sphere->addChild(std::make_shared<SphereRenderObject>(sphere->getName() + "Renderer",
                                                           texId,
                                                           r_col_r, r_col_g, r_col_b,
-                                                          r_radius,
-                                                          rotspeed, rot_x, rot_y, rot_z));
+                                                          r_radius));
 
     sphere->addChild(std::make_shared<CollidableObject>(sphere->getName() + "Collider", r_radius));
 

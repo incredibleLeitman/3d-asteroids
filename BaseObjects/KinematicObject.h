@@ -10,6 +10,7 @@
 #include "Object.h"
 
 
+/// Object with 6DOF zero-gravity movement and rotation
 class KinematicObject : public Object {
 
 public:
@@ -20,6 +21,7 @@ public:
                                                    linearAccel(std::move(
                                                            linearAccel)) {};
 
+    /// Update position and rotation based on velocity, acceleration and thrust
     virtual void update(float delta);
 
     Eigen::Vector3d angularThrust;
