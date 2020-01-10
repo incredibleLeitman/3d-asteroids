@@ -12,39 +12,49 @@
 class RenderObject : public Object {
 public:
     RenderObject(std::string name, GLuint texId, GLfloat r, GLfloat g, GLfloat b)
-            : Object(std::move(name)), texId(texId), color{r, g, b} {};
+        : Object(std::move(name)), texId(texId), color{ r, g, b } {};
 
     /// Render the object via OpenGL, at the appropriate Transform of the Object
-    virtual void render() = 0;
+    virtual void render(float distance) = 0;
 
 protected:
     GLuint texId = 0;
-    std::array<GLfloat, 3> color{.0f, .0f, .0f};
+    std::array<GLfloat, 3> color{ .0f, .0f, .0f };
 };
-
 
 /// Renders a sphere with any size and texture
 class SphereRenderObject : public RenderObject {
 public:
     SphereRenderObject(std::string name, GLuint texId, GLfloat r, GLfloat g, GLfloat b, GLdouble radius)
-            : RenderObject(std::move(name), texId, r, g, b), radius(radius) {};
+        : RenderObject(std::move(name), texId, r, g, b), radius(radius) {};
 
-    void render() override;
+    void render(float distance) override;
 
 private:
     GLdouble radius;
 };
 
+/// Renders a cube with any size and texture
+class CubeRenderObject : public RenderObject {
+public:
+    CubeRenderObject(std::string name, GLuint texId, GLfloat r, GLfloat g, GLfloat b, GLdouble dim)
+        : RenderObject(std::move(name), texId, r, g, b), dim(dim) {};
+
+    void render(float distance) override;
+
+private:
+    GLdouble dim;
+};
 
 /// Renders a spaceship cockpit, e.g. for putting the player camera inside
 class CockpitRenderObject : public RenderObject {
 public:
     CockpitRenderObject(std::string name, GLuint texId, float extentX, float extentY, float distZ, float topOffset,
-                        float topDistance) : RenderObject(std::move(name), texId, 1.0, 1.0, 1.0), extentX(extentX),
-                                             extentY(extentY), distZ(distZ), topOffset(topOffset),
-                                             topDistance(topDistance) {};
+        float topDistance) : RenderObject(std::move(name), texId, 1.0, 1.0, 1.0), extentX(extentX),
+        extentY(extentY), distZ(distZ), topOffset(topOffset),
+        topDistance(topDistance) {};
 
-    void render() override;
+    void render(float distance) override;
 
 private:
     float extentX;

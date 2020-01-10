@@ -23,7 +23,3 @@ I, K: Forward / Backwards
 J, L: Left / Right
 
 U, O: Up / Down
-
-## Building
-
-The project can be opened, edited and built in CLion. Alternatively, CMake or Make (using the CMake-generated Makefile in cmake-build-debug) works too.

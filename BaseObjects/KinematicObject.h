@@ -16,10 +16,8 @@ class KinematicObject : public Object {
 public:
     KinematicObject(std::string name, Eigen::Vector3d startPos, Eigen::Vector3d angularAccel,
                     Eigen::Vector3d linearAccel) : Object(std::move(name), std::move(startPos)),
-                                                   angularAccel(std::move(
-                                                           angularAccel)),
-                                                   linearAccel(std::move(
-                                                           linearAccel)) {};
+                                                   angularAccel(std::move(angularAccel)),
+                                                   linearAccel(std::move(linearAccel)) {};
 
     /// Update position and rotation based on velocity, acceleration and thrust
     virtual void update(float delta);

@@ -4,6 +4,7 @@
 
 #include <stdlib.h> // for exit
 //#include <unistd.h> // for usleep
+//#include <limits> // for max values
 #include <iostream>
 
 #include <GL/glut.h>
@@ -33,16 +34,17 @@ GLfloat angle_y = 0;    // angle of spin around y axis of scene, in degrees
 GLfloat angle_x = 0;    // angle of spin around x axis  of scene, in degrees
 
 // world objects
-ObjectSpawner *spawner = new ObjectSpawner();
+ObjectSpawner* spawner = new ObjectSpawner();
 
 std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 //std::shared_ptr<KinematicObject> player;
-KinematicObject *player;
+KinematicObject* player;
 
 // TODO: This is a temporary, ugly solution for saving all objects for rendering, checking collisions, etc.
 //  In the future, we might want a factory or a similar data structure for creating objects, which puts them into
 //  their corresponding containers automatically.
 std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
+std::vector<std::shared_ptr<RenderObject>> transpObjects = std::vector<std::shared_ptr<RenderObject>>();
 std::vector<std::shared_ptr<CollidableObject>> collidableObjects = std::vector<std::shared_ptr<CollidableObject>>();
 std::vector<KinematicObject*> kinematicObjects = std::vector<KinematicObject*>(); // TODO: Should be shared_ptr
 
@@ -55,9 +57,30 @@ void timer(int val) {
     }
 
     // check for collisions
-    for (auto &object : collidableObjects) {
-        if (object->collidesWith(std::dynamic_pointer_cast<CollidableObject>(player->getChild("PlayerCollider")))) {
-            throw std::exception();
+    const std::shared_ptr<CollidableObject> playerCollider = std::dynamic_pointer_cast<CollidableObject>(player->getChild("PlayerCollider"));
+    for (auto& object : collidableObjects) {
+        if (object->collidesWith(playerCollider)) {
+            std::string name = object->getName();
+            fprintf(stderr, "player collided with %s\n", name.c_str());
+            if (name.rfind("collectible", 0) == 0) {
+                // remove from collections
+                std::shared_ptr<Object> parent = object->getParent();
+                name = parent->getName();
+
+                collidableObjects.erase(std::remove(collidableObjects.begin(), collidableObjects.end(), object), collidableObjects.end());
+
+                std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(parent->getChild(name + "Renderer"));
+                transpObjects.erase(std::remove(transpObjects.begin(), transpObjects.end(), renderer), transpObjects.end());
+
+                //root->removeChild(name);
+
+                //std::shared_ptr<KinematicObject> body = std::dynamic_pointer_cast<KinematicObject>(parent);
+                //kinematicObjects.erase(std::remove(kinematicObjects.begin(), kinematicObjects.end(), body), kinematicObjects.end());
+                break;
+            }
+            else {
+                throw std::exception();
+            }
         }
     }
 }
@@ -82,138 +105,137 @@ void keyPressed(unsigned char key, int x, int y) {
 
     switch (key) {
         // exit
-        case 27:
-            glutDestroyWindow(window);
-            exit(0);
-            break;
-            // Forward
-        case 'i':
-            player->linearThrust[2] = -1;
-            break;
-        case 'k':
-            player->linearThrust[2] = 1;
-            break;
+    case 27:
+        glutDestroyWindow(window);
+        exit(0);
+        break;
+        // Forward
+    case 'i':
+        player->linearThrust[2] = -1;
+        break;
+    case 'k':
+        player->linearThrust[2] = 1;
+        break;
 
-            // Sideways
-        case 'j':
-            player->linearThrust[0] = -1;
-            break;
-        case 'l':
-            player->linearThrust[0] = 1;
-            break;
+        // Sideways
+    case 'j':
+        player->linearThrust[0] = -1;
+        break;
+    case 'l':
+        player->linearThrust[0] = 1;
+        break;
 
-            // Up
-        case 'u':
-            player->linearThrust[1] = 1;
-            break;
-        case 'o':
-            player->linearThrust[1] = -1;
-            break;
+        // Up
+    case 'u':
+        player->linearThrust[1] = 1;
+        break;
+    case 'o':
+        player->linearThrust[1] = -1;
+        break;
 
-            // Yaw
-        case 'q':
-            player->angularThrust[1] = 1;
-            break;
-        case 'e':
-            player->angularThrust[1] = -1;
-            break;
+        // Yaw
+    case 'q':
+        player->angularThrust[1] = 1;
+        break;
+    case 'e':
+        player->angularThrust[1] = -1;
+        break;
 
-            // Roll
-        case 'a':
-            player->angularThrust[2] = 1;
-            break;
-        case 'd':
-            player->angularThrust[2] = -1;
-            break;
+        // Roll
+    case 'a':
+        player->angularThrust[2] = 1;
+        break;
+    case 'd':
+        player->angularThrust[2] = -1;
+        break;
 
-            // Pitch
-        case 'w':
-            player->angularThrust[0] = 1;
-            break;
-        case 's':
-            player->angularThrust[0] = -1;
-            break;
+        // Pitch
+    case 'w':
+        player->angularThrust[0] = 1;
+        break;
+    case 's':
+        player->angularThrust[0] = -1;
+        break;
 
-            // Emergency
-        case ' ':
-            player->angularVelocity[0] = 0;
-            player->angularVelocity[1] = 0;
-            player->angularVelocity[2] = 0;
+        // Emergency
+    case ' ':
+        player->angularVelocity[0] = 0;
+        player->angularVelocity[1] = 0;
+        player->angularVelocity[2] = 0;
 
-            player->linearVelocity[0] = 0;
-            player->linearVelocity[1] = 0;
-            player->linearVelocity[2] = 0;
-            break;
+        player->linearVelocity[0] = 0;
+        player->linearVelocity[1] = 0;
+        player->linearVelocity[2] = 0;
+        break;
     }
 }
 
 void keyReleased(unsigned char key, int x, int y) {
     switch (key) {
         // Forward
-        case 'i':
-        case 'k':
-            player->linearThrust[2] = 0;
-            break;
+    case 'i':
+    case 'k':
+        player->linearThrust[2] = 0;
+        break;
 
-            // Sideways
-        case 'j':
-        case 'l':
-            player->linearThrust[0] = 0;
-            break;
+        // Sideways
+    case 'j':
+    case 'l':
+        player->linearThrust[0] = 0;
+        break;
 
-            // Up
-        case 'u':
-        case 'o':
-            player->linearThrust[1] = 0;
-            break;
+        // Up
+    case 'u':
+    case 'o':
+        player->linearThrust[1] = 0;
+        break;
 
-            // Yaw
-        case 'q':
-        case 'e':
-            player->angularThrust[1] = 0;
-            break;
+        // Yaw
+    case 'q':
+    case 'e':
+        player->angularThrust[1] = 0;
+        break;
 
-            // Roll
-        case 'a':
-        case 'd':
-            player->angularThrust[2] = 0;
-            break;
+        // Roll
+    case 'a':
+    case 'd':
+        player->angularThrust[2] = 0;
+        break;
 
-            // Pitch
-        case 'w':
-        case 's':
-            player->angularThrust[0] = 0;
-            break;
+        // Pitch
+    case 'w':
+    case 's':
+        player->angularThrust[0] = 0;
+        break;
     }
 }
 
 static void specialKeyPressed(int key, int x, int y) {
     // speed everything up a little...
     switch (key) {
-        case GLUT_KEY_UP:
-            inc *= 1.5;
-            break;
-        case GLUT_KEY_DOWN:
-            inc *= 0.75;
-            break;
+    case GLUT_KEY_UP:
+        inc *= 1.5;
+        break;
+    case GLUT_KEY_DOWN:
+        inc *= 0.75;
+        break;
     }
 }
 
 void mouseButton(int button, int state, int x, int y) {
     switch (button) {
-        case GLUT_LEFT_BUTTON:
-            if (state == GLUT_DOWN) {
-                moving = 1;
-                begin_x = x;
-                begin_y = y;
-
-            } else if (state == GLUT_UP) {
-                moving = 0;
-            }
-            break;
-
-        default:
-            break;
+    case GLUT_LEFT_BUTTON:
+        if (state == GLUT_DOWN) {
+            moving = 1;
+            begin_x = x;
+            begin_y = y;
+        }
+        else if (state == GLUT_UP) {
+            moving = 0;
+        }
+        break;
+    default:
+        break;
     }
 }
 
@@ -225,14 +247,16 @@ void mouseMotion(int x, int y) {
         // Clamp angle_x so the view stops rotating at almost straight down / up
         if (angle_x > 70.0) {
             angle_x = 70.0;
-        } else if (angle_x < -70.0) {
+        }
+        else if (angle_x < -70.0) {
             angle_x = -70.0;
         }
 
         // Make angle_y stay between -360 and 360
         if (angle_y > 360.0) {
             angle_y -= 360.0;
-        } else if (angle_y < -360.0) {
+        }
+        else if (angle_y < -360.0) {
             angle_y += 360.0;
         }
 
@@ -248,8 +272,8 @@ void drawSolarSystem() {
     glScalef(300, 300, 300);
     hour += inc;
     day += inc / 24.0;
-    hour = hour - ((int) (hour / 24)) * 24;
-    day = day - ((int) (day / 365)) * 365;
+    hour = hour - ((int)(hour / 24)) * 24;
+    day = day - ((int)(day / 365)) * 365;
 
     // ecliptic
     glRotatef(360 * day / 365.0, 0.0, 1.0, 0.0);
@@ -258,7 +282,7 @@ void drawSolarSystem() {
     // sun
     glDisable(GL_LIGHTING);
     glColor3f(1.0, 1.0, 1.0); // Make sure the sun is bright
-    GLUquadric *sphere = gluNewQuadric();
+    GLUquadric* sphere = gluNewQuadric();
     glEnable(GL_TEXTURE_2D);
     TextureManager::Inst()->bindTexture(SUN_IMG_ID);
     gluQuadricTexture(sphere, GL_TRUE);
@@ -278,7 +302,6 @@ void drawSolarSystem() {
     glPushMatrix();
     // rotate the earth on its axis
     glRotatef(360.0 * hour / 24.0, 0.0, 1.0, 0.0);
-    //glColor3f(1.0f, 1.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
     TextureManager::Inst()->bindTexture(EARTH_IMG_ID);
     sphere = gluNewQuadric();
@@ -305,8 +328,7 @@ void display() {
     // Greater FOV the faster the player moves
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(MIN_FOV + std::min(player->linearVelocity.norm() * 100.0, MAX_FOV_ADD), (float) width / (float) height, 0.1f,
-                   10000.0f);
+    gluPerspective(MIN_FOV + std::min(player->linearVelocity.norm() * 100.0, MAX_FOV_ADD), (float)width / (float)height, 0.1f, 2 * WORLD_SIZE);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -319,20 +341,36 @@ void display() {
     // universe background - the one above all...
     glDisable(GL_LIGHTING);
     TextureManager::Inst()->bindTexture(UNIVERSE_IMG_ID);
-    //TextureManager::Inst()->bindTexture(ASTEROID_IMG_ID);
-    GLUquadric *sphere = gluNewQuadric();
+    GLUquadric* sphere = gluNewQuadric();
     gluQuadricTexture(sphere, GL_TRUE);
     gluSphere(sphere, WORLD_SIZE, 50, 50);
     glDisable(GL_TEXTURE_2D);
-    glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHTING);
 
     // render all RenderObjects
-    for (auto &object : renderObjects) {
-        object->render();
+    const Eigen::Vector3d& playerPos = player->getTransform().col(3).head<3>();
+    for (auto& object : renderObjects) {
+        Eigen::Vector3d dist = playerPos - object->getTransform().col(3).head<3>();
+        object->render(dist.norm());
     }
 
     // render other spheres
     drawSolarSystem();
+
+    // sort transparent objects
+    std::map<float, std::shared_ptr<RenderObject> > sorted;
+    for (auto& object : transpObjects) {
+        Eigen::Vector3d dist = playerPos - object->getTransform().col(3).head<3>();
+        sorted[dist.norm()] = object;
+    }
+
+    // render all transparent objects
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    for (std::map<float, std::shared_ptr<RenderObject> >::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+    {
+        it->second->render(it->first);
+    }
 
     step += inc;
 
@@ -340,9 +378,9 @@ void display() {
 }
 
 void init() {
-    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_shininess[] = {15.0};
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 15.0 };
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -360,20 +398,22 @@ void init() {
 
     // load textures
     TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
+    //TextureManager::Inst()->loadTexture("resources/asteroid_transp.tga", ASTEROID_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/emerald.tga", EMERALD_IMG_ID);
 
-    // create stars and asteroids
+    // create stars
     for (int i = 0; i < count_stars; i++) {
-        KinematicObject *star = spawner->createSphere("star" + std::to_string(i), 0, Random::Range(218, 255),
-                                                      Random::Range(244, 255), Random::Range(0, 100),
-                                                      STAR_MIN_SIZE, STAR_MAX_SIZE,
-                                                      .0f, .0f, .0f, .0f);
+        KinematicObject* star = spawner->createSphere("star" + std::to_string(i), 0,
+            Random::Range(218, 255), Random::Range(244, 255), Random::Range(0, 100),
+            STAR_MIN_SIZE, STAR_MAX_SIZE,
+            .0f, .0f, .0f, .0f);
 
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
-                star->getChild(star->getName() + "Renderer"));
+            star->getChild(star->getName() + "Renderer"));
         renderObjects.push_back(renderer);
 
         std::shared_ptr<KinematicObject> star_shared(star);
@@ -382,22 +422,22 @@ void init() {
         kinematicObjects.push_back(star);
     }
 
+    // create asteroids
     for (int i = 0; i < count_asteroids; i++) {
         GLfloat col_grayish = Random::Range(100, 255);
-        KinematicObject *asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
-                                                          col_grayish, col_grayish, col_grayish,
-                                                          ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
-                                                          Random::RangeF(-15, 15), Random::ZeroOrOne(),
-                                                          Random::ZeroOrOne(), Random::ZeroOrOne());
+        KinematicObject* asteroid = spawner->createSphere("asteroid" + std::to_string(i), ASTEROID_IMG_ID,
+            col_grayish, col_grayish, col_grayish,
+            ASTEROID_MIN_SIZE, ASTEROID_MAX_SIZE,
+            Random::RangeF(-15, 15), Random::ZeroOrOne(),
+            Random::ZeroOrOne(), Random::ZeroOrOne());
 
-        // Add renderer
         std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
-                asteroid->getChild(asteroid->getName() + "Renderer"));
+            asteroid->getChild(asteroid->getName() + "Renderer"));
         renderObjects.push_back(renderer);
 
         // Add collider since player should collide with these
         std::shared_ptr<CollidableObject> collider = std::dynamic_pointer_cast<CollidableObject>(
-                asteroid->getChild(asteroid->getName() + "Collider"));
+            asteroid->getChild(asteroid->getName() + "Collider"));
         collidableObjects.push_back(collider);
 
         std::shared_ptr<KinematicObject> asteroid_shared(asteroid);
@@ -405,19 +445,40 @@ void init() {
 
         kinematicObjects.push_back(asteroid);
     }
+
+    // create collectibles
+    for (int i = 0; i < count_collectibles; i++) {
+        std::string name = "collectible" + std::to_string(i);
+        KinematicObject* collectible = spawner->createCube(name, EMERALD_IMG_ID, 0, 0, 0, 3, 3, 0, 0, 0, 0);
+
+        std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
+            collectible->getChild(name + "Renderer"));
+        transpObjects.push_back(renderer);
+
+        // Add collider since player should collide with these
+        std::shared_ptr<CollidableObject> collider = std::dynamic_pointer_cast<CollidableObject>(
+            collectible->getChild(name + "Collider"));
+        collidableObjects.push_back(collider);
+
+        std::shared_ptr<KinematicObject> collectible_shared(collectible);
+        root->addChild(collectible_shared);
+
+        kinematicObjects.push_back(collectible);
+    }
+
     resize(width, height);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     // Build the player object and its children
     // LEM: no clue why make_shared crashes so badly for Win10 VS
     /*player = std::make_shared<KinematicObject>("Player", Eigen::Vector3d{0.0, 0.0, 8.0},
                                                Eigen::Vector3d{25.0, 25.0, 25.0},
                                                Eigen::Vector3d{2.0, 2.0, 2.0});*/
     player = new KinematicObject("Player",
-                                 Eigen::Vector3d{0.0, 0.0, 8.0},
-                                 Eigen::Vector3d{25.0, 25.0, 25.0},
-                                 Eigen::Vector3d{2.0, 2.0, 2.0});
+        Eigen::Vector3d{ 0.0, 0.0, 8.0 },
+        Eigen::Vector3d{ 25.0, 25.0, 25.0 },
+        Eigen::Vector3d{ 2.0, 2.0, 2.0 });
     player->addChild(std::make_shared<CollidableObject>("PlayerCollider", 1.0));
     player->addChild(std::make_shared<CameraObject>("PlayerCamera"));
 
