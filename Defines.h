@@ -11,7 +11,7 @@
 
 const int count_stars = 50;
 const int count_asteroids = 500;
-const int count_collectibles = 10;
+const int count_collectibles = 100; //10;
 
 const int width = 1920;
 const int height = 1080;
@@ -35,6 +35,11 @@ const GLuint COCKPIT_IMG_ID = 3;
 const GLuint SUN_IMG_ID = 4;
 const GLuint UNIVERSE_IMG_ID = 5;
 const GLuint EMERALD_IMG_ID = 6;
+const GLuint PORCELAIN_IMG_ID = 7;
+
+const int TEAPOT_MOD_ID = 1;
+const int SPHERE_MOD_ID = 2;
+const int ICOSPHERE_MOD_ID = 3;
 
 GLfloat sunLightPosition[] = { 0.0, 0.0, 0.0, 1.0 };
 GLfloat sunLightDiffuse[] = { 1.0, 1.0, 1.0, 0.0 };

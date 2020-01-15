@@ -17,8 +17,10 @@
 #include "BaseObjects/RenderObject.h"
 #include "Defines.h"
 #include "ObjectSpawner.h"
+
 #include "Util/RandomRange.h"
 #include "Util/TextureManager.h"
+#include "Util/ModelManager.h"
 
 int window;
 
@@ -41,8 +43,8 @@ std::shared_ptr<Object> root = std::make_shared<Object>("Root");
 KinematicObject* player;
 
 // TODO: This is a temporary, ugly solution for saving all objects for rendering, checking collisions, etc.
-//  In the future, we might want a factory or a similar data structure for creating objects, which puts them into
-//  their corresponding containers automatically.
+//  In the future, we might want a factory or a similar data structure for creating objects, 
+//  which puts them into their corresponding containers automatically.
 std::vector<std::shared_ptr<RenderObject>> renderObjects = std::vector<std::shared_ptr<RenderObject>>();
 std::vector<std::shared_ptr<RenderObject>> transpObjects = std::vector<std::shared_ptr<RenderObject>>();
 std::vector<std::shared_ptr<CollidableObject>> collidableObjects = std::vector<std::shared_ptr<CollidableObject>>();
@@ -127,10 +129,10 @@ void keyPressed(unsigned char key, int x, int y) {
 
         // Up
     case 'u':
-        player->linearThrust[1] = 1;
+        player->linearThrust[1] = -1;
         break;
     case 'o':
-        player->linearThrust[1] = -1;
+        player->linearThrust[1] = 1;
         break;
 
         // Yaw
@@ -347,15 +349,19 @@ void display() {
     glDisable(GL_TEXTURE_2D);
     //glEnable(GL_LIGHTING);
 
+    // render other spheres
+    drawSolarSystem();
+
+    //draws models
+    /*ModelManager::Inst()->drawMesh(TEAPOT_MOD_ID, 0);
+    ModelManager::Inst()->drawMesh(SPHERE_MOD_ID, 10);
+    ModelManager::Inst()->drawMesh(ICOSPHERE_MOD_ID, 20);*/
+
     // render all RenderObjects
     const Eigen::Vector3d& playerPos = player->getTransform().col(3).head<3>();
     for (auto& object : renderObjects) {
-        Eigen::Vector3d dist = playerPos - object->getTransform().col(3).head<3>();
-        object->render(dist.norm());
+        object->render(playerPos);
     }
-
-    // render other spheres
-    drawSolarSystem();
 
     // sort transparent objects
     std::map<float, std::shared_ptr<RenderObject> > sorted;
@@ -369,7 +375,7 @@ void display() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for (std::map<float, std::shared_ptr<RenderObject> >::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
     {
-        it->second->render(it->first);
+        it->second->render(playerPos);
     }
 
     step += inc;
@@ -397,13 +403,18 @@ void init() {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // load textures
-    TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID);
-    //TextureManager::Inst()->loadTexture("resources/asteroid_transp.tga", ASTEROID_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/asteroid.tga", ASTEROID_IMG_ID, 10);
     TextureManager::Inst()->loadTexture("resources/earth.tga", EARTH_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/cockpit.tga", COCKPIT_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/sun.tga", SUN_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/universe.tga", UNIVERSE_IMG_ID);
     TextureManager::Inst()->loadTexture("resources/emerald.tga", EMERALD_IMG_ID);
+    TextureManager::Inst()->loadTexture("resources/porcelain.tga", PORCELAIN_IMG_ID);
+
+    // load models
+    ModelManager::Inst()->loadModel("resources/models/noobPot.obj", TEAPOT_MOD_ID, 1);
+    ModelManager::Inst()->loadModel("resources/models/sphere.obj", SPHERE_MOD_ID, 1);
+    ModelManager::Inst()->loadModel("resources/models/icosphere.obj", ICOSPHERE_MOD_ID, 1);
 
     // create stars
     for (int i = 0; i < count_stars; i++) {
@@ -465,6 +476,33 @@ void init() {
 
         kinematicObjects.push_back(collectible);
     }
+
+    // create teapot
+    GLfloat col_grayish = Random::Range(100, 255);
+    KinematicObject* teapot = spawner->createSphere("teapot", PORCELAIN_IMG_ID,
+        col_grayish, col_grayish, col_grayish,
+        10, 10, 0, 0, 0, 0);
+
+    /*std::shared_ptr<RenderObject> renderer =
+        std::make_shared<ModelRenderObject>("TeapotRenderer", TEAPOT_MOD_ID, PORCELAIN_IMG_ID);
+    renderObjects.push_back(renderer);*/
+
+    teapot->addChild(std::make_shared<ModelRenderObject>("AlternateRenderer", TEAPOT_MOD_ID, PORCELAIN_IMG_ID));
+
+    //teapot->removeChild("teapotRenderer");
+
+    /*std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
+        teapot->getChild(teapot->getName() + "Renderer"));
+    renderObjects.push_back(renderer);*/
+
+    std::shared_ptr<RenderObject> renderer = std::dynamic_pointer_cast<RenderObject>(
+        teapot->getChild("AlternateRenderer"));
+    renderObjects.push_back(renderer);
+
+    std::shared_ptr<KinematicObject> teapot_shared(teapot);
+    root->addChild(teapot_shared);
+
+    kinematicObjects.push_back(teapot);
 
     resize(width, height);
 }
