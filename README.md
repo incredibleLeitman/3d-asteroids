@@ -27,3 +27,9 @@ U, O: Up / Down
 ## Building
 
 The project can be opened, edited and built in CLion. Alternatively, CMake or Make (using the CMake-generated Makefile in cmake-build-debug) works too.
+
+Also added a project file for visual studio support (MVS2019 tested)
+
+## "player collided with asteroidXXXCollider"
+
+"Yes, the exception which is thrown when crashing against an asteroid is intentional - there's no game over screen."

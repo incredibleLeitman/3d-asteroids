@@ -7,7 +7,7 @@
 *.slo
 *.lo
 *.o
-*.obj
+## *.obj --> needed for wavefront model format
 
 ## Precompiled Headers
 *.gch
@@ -101,9 +101,10 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 ## Visual Studio
-3d-asteroids.sln
-3d-asteroids.vcxproj
-3d-asteroids.vcxproj.filters
-3d-asteroids.vcxproj.user
+#3d-asteroids.sln
+#3d-asteroids.vcxproj
+#3d-asteroids.vcxproj.filters
+#3d-asteroids.vcxproj.user
 3d-asteroids/Debug/
 3d-asteroids/.vs/
+3d-asteroids/x64/

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="BaseObjects">
+      <UniqueIdentifier>{9742956a-906a-477f-a692-c60f54578aea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{a247307c-0b21-4445-97a6-2dc1981c15bc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ObjectSpawner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BaseObjects\CameraObject.cpp">
+      <Filter>BaseObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BaseObjects\CollidableObject.cpp">
+      <Filter>BaseObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BaseObjects\KinematicObject.cpp">
+      <Filter>BaseObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BaseObjects\Object.cpp">
+      <Filter>BaseObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\BaseObjects\RenderObject.cpp">
+      <Filter>BaseObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\TextureManager.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\tga.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util\ModelManager.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ObjectSpawner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BaseObjects\CameraObject.h">
+      <Filter>BaseObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BaseObjects\CollidableObject.h">
+      <Filter>BaseObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BaseObjects\KinematicObject.h">
+      <Filter>BaseObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BaseObjects\Object.h">
+      <Filter>BaseObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BaseObjects\RenderObject.h">
+      <Filter>BaseObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\RandomRange.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\TextureManager.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\tga.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\OBJ_Loader.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\ModelManager.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util\GeometryPrimitives.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
